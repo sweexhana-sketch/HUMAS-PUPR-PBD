@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login — SIM-HUMAS Dinas PUPR Papua Barat Daya</title>
+<meta name="description" content="Sistem Informasi Manajemen Humas Dinas PUPR Papua Barat Daya. Login untuk mengakses dashboard.">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<link rel="stylesheet" href="../assets/css/main.css">
+<link rel="stylesheet" href="../assets/css/components.css">
+<link rel="stylesheet" href="../assets/css/pages.css">
+<style>
+  body {
+    display: block;
+    overflow: auto;
+    background: var(--navy);
+  }
+</style>
+</head>
+<body>
+
+<div class="login-page">
+  <!-- Orbs dekoratif -->
+  <div class="login-orb-1"></div>
+  <div class="login-orb-2"></div>
+
+  <div class="login-card">
+    <!-- Logo & Judul -->
+    <div class="login-logo">
+      <div class="login-logo-icon">🏗️</div>
+      <div class="login-title">SIM-HUMAS</div>
+      <div class="login-subtitle">Dinas PUPR Provinsi Papua Barat Daya</div>
+    </div>
+
+    <!-- Alert Error -->
+    <div id="login-error" style="display:none;background:rgba(229,57,53,.15);border:1px solid rgba(229,57,53,.3);border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:13px;color:#ff8a80">
+      <i class="ti ti-alert-circle"></i>
+      <span id="login-error-msg">Email atau password salah.</span>
+    </div>
+
+    <!-- Form Login -->
+    <form class="login-form" id="login-form" onsubmit="handleLogin(event)">
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input
+          type="email"
+          id="login-email"
+          class="form-input"
+          placeholder="admin@pupr-papbd.go.id"
+          value="admin@pupr-papbd.go.id"
+          required
+          autocomplete="email"
+        >
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" style="display:flex;justify-content:space-between">
+          <span>Password</span>
+          <a href="#" style="color:rgba(255,255,255,.4);font-size:11px;font-weight:400" onclick="Utils.showToast('Fitur lupa password segera hadir.', '')">
+            Lupa password?
+          </a>
+        </label>
+        <div style="position:relative">
+          <input
+            type="password"
+            id="login-password"
+            class="form-input"
+            placeholder="••••••••"
+            value="admin123"
+            required
+            autocomplete="current-password"
+            style="padding-right:40px"
+          >
+          <button type="button" id="toggle-pw"
+            style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:rgba(255,255,255,.4);font-size:18px;padding:0"
+            onclick="togglePassword()">
+            <i class="ti ti-eye" id="pw-icon"></i>
+          </button>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px">
+        <input type="checkbox" id="remember-me" style="accent-color:var(--green);width:14px;height:14px">
+        <label for="remember-me" style="font-size:12px;color:rgba(255,255,255,.5);cursor:pointer">Ingat saya</label>
+      </div>
+
+      <button type="submit" id="login-btn" class="btn btn-primary" style="width:100%;justify-content:center;padding:11px;font-size:14px">
+        <span id="login-btn-text">Masuk ke Sistem</span>
+        <div class="spinner" id="login-spinner" style="display:none;width:18px;height:18px;border-width:2px"></div>
+      </button>
+    </form>
+
+    <!-- Info Demo -->
+    <div style="margin-top:16px;padding:10px 14px;background:rgba(240,165,0,.1);border:1px solid rgba(240,165,0,.2);border-radius:8px;font-size:11px;color:rgba(255,255,255,.5)">
+      <i class="ti ti-info-circle" style="color:var(--gold)"></i>
+      <strong style="color:var(--gold)">Mode Demo:</strong>
+      Email: <code>admin@pupr-papbd.go.id</code> / Password: <code>admin123</code>
+    </div>
+
+    <!-- Footer -->
+    <div class="login-footer">
+      <i class="ti ti-lock" style="font-size:12px"></i>
+      &copy; 2025 Dinas PUPR Papua Barat Daya
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+  <i class="ti ti-info-circle" id="toast-icon"></i>
+  <span id="toast-msg"></span>
+</div>
+
+<!-- Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+<!-- App Scripts -->
+<script src="../assets/js/supabase.config.js"></script>
+<script src="../assets/js/auth.js"></script>
+<script src="../assets/js/utils.js"></script>
+
+<script>
+  // ── CEK SESSION AKTIF ────────────────────────────────────────
+  (async () => {
+    if (window.location.protocol === 'file:') {
+      console.warn("Menjalankan lewat file:// dapat menyebabkan error login berulang (CORS/LocalStorage). Gunakan Live Server.");
+    }
+    const user = await Auth.checkAuth();
+    if (user) {
+      window.location.href = 'app.html';
+    }
+  })();
+
+  // ── HANDLE LOGIN ─────────────────────────────────────────────
+  async function handleLogin(e) {
+    e.preventDefault();
+
+    const email    = document.getElementById('login-email').value;
+    const password = document.getElementById('login-password').value;
+
+    // Set loading state
+    const btn      = document.getElementById('login-btn');
+    const btnText  = document.getElementById('login-btn-text');
+    const spinner  = document.getElementById('login-spinner');
+    const errorEl  = document.getElementById('login-error');
+
+    btn.disabled    = true;
+    btnText.style.display  = 'none';
+    spinner.style.display  = 'inline-block';
+    errorEl.style.display  = 'none';
+
+    const { success, error, demo } = await Auth.login(email, password);
+
+    if (success) {
+      if (demo) Utils.showToast('Login berhasil! Mode Demo aktif.', 'success');
+      else       Utils.showToast('Login berhasil!', 'success');
+
+      setTimeout(() => {
+        window.location.href = 'app.html';
+      }, 800);
+    } else {
+      btn.disabled = false;
+      btnText.style.display = 'inline';
+      spinner.style.display = 'none';
+
+      document.getElementById('login-error-msg').textContent = error || 'Login gagal.';
+      errorEl.style.display = 'flex';
+      errorEl.style.gap = '8px';
+      errorEl.style.alignItems = 'center';
+    }
+  }
+
+  // ── TOGGLE PASSWORD VISIBILITY ────────────────────────────────
+  function togglePassword() {
+    const input  = document.getElementById('login-password');
+    const icon   = document.getElementById('pw-icon');
+    const isText = input.type === 'text';
+    input.type   = isText ? 'password' : 'text';
+    icon.className = isText ? 'ti ti-eye' : 'ti ti-eye-off';
+  }
+
+  // Enter key submit
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      const form = document.getElementById('login-form');
+      if (form) form.requestSubmit();
+    }
+  });
+</script>
+</body>
+</html>

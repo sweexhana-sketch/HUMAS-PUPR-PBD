@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SIM-HUMAS — Dinas PUPR Papua Barat Daya</title>
+<meta name="description" content="Sistem Informasi Manajemen Humas Dinas PUPR Papua Barat Daya">
+<script>
+  // Auto-redirect ke halaman yang sesuai berdasarkan session
+  (async () => {
+    const stored = localStorage.getItem('sim_humas_user');
+    if (stored) {
+      window.location.replace('pages/app.html');
+    } else {
+      window.location.replace('pages/login.html');
+    }
+  })();
+</script>
+</head>
+<body>
+  <div style="font-family:sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#0A1628;color:#fff">
+    <div style="text-align:center">
+      <div style="font-size:48px;margin-bottom:12px">🏗️</div>
+      <div style="font-size:16px;font-weight:700">SIM-HUMAS PUPR Papua Barat Daya</div>
+      <div style="font-size:12px;opacity:.5;margin-top:8px">Memuat aplikasi...</div>
+    </div>
+  </div>
+</body>
+</html>

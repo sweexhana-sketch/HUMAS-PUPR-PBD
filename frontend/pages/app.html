@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SIM-HUMAS — Dinas PUPR Papua Barat Daya</title>
+<meta name="description" content="Sistem Informasi Manajemen Humas Dinas PUPR Papua Barat Daya. Kelola berita, galeri, agenda, dan konten publikasi resmi.">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<link rel="stylesheet" href="../assets/css/main.css">
+<link rel="stylesheet" href="../assets/css/components.css">
+<link rel="stylesheet" href="../assets/css/pages.css">
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════
+     SIDEBAR
+══════════════════════════════════════════════════════════ -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-logo">
+      <div class="brand-icon">🏗️</div>
+      <div>
+        <div class="brand-title">SIM-HUMAS</div>
+        <div class="brand-sub">Dinas PUPR Papua Barat Daya</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-section scroll-sm">
+    <div class="nav-label">Utama</div>
+    <div class="nav-item" id="nav-dashboard" onclick="Router.navigate('dashboard')">
+      <i class="ti ti-layout-dashboard"></i> Dashboard
+    </div>
+    <div class="nav-item" id="nav-berita" onclick="Router.navigate('berita')">
+      <i class="ti ti-news"></i> Manajemen Berita
+      <span class="nav-badge" id="badge-review">3</span>
+    </div>
+    <div class="nav-item" id="nav-ai" onclick="Router.navigate('ai')">
+      <i class="ti ti-brain"></i> AI Content Studio
+    </div>
+
+    <div class="nav-label">Konten</div>
+    <div class="nav-item" id="nav-galeri" onclick="Router.navigate('galeri')">
+      <i class="ti ti-photo"></i> Galeri Media
+    </div>
+    <div class="nav-item" id="nav-publikasi" onclick="Router.navigate('publikasi')">
+      <i class="ti ti-file-description"></i> Publikasi Resmi
+    </div>
+    <div class="nav-item" id="nav-agenda" onclick="Router.navigate('agenda')">
+      <i class="ti ti-calendar-event"></i> Agenda Kegiatan
+    </div>
+
+    <div class="nav-label">Analitik</div>
+    <div class="nav-item" id="nav-laporan" onclick="Router.navigate('laporan')">
+      <i class="ti ti-chart-bar"></i> Laporan &amp; Statistik
+    </div>
+    <div class="nav-item" id="nav-monitoring" onclick="Router.navigate('monitoring')">
+      <i class="ti ti-activity"></i> Monitoring Konten
+    </div>
+
+    <div class="nav-label">Sistem</div>
+    <div class="nav-item" id="nav-pengaturan" onclick="Router.navigate('pengaturan')">
+      <i class="ti ti-settings"></i> Pengaturan
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="user-card">
+      <div class="avatar" id="user-avatar">AD</div>
+      <div class="user-info">
+        <p id="user-name">Admin HUMAS</p>
+        <span id="user-email">humas@pupr-papbd.go.id</span>
+      </div>
+    </div>
+    <button class="btn btn-outline" style="width:100%;margin-top:10px;justify-content:center;font-size:12px;background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.1);color:rgba(255,255,255,.5)" onclick="Auth.logout()">
+      <i class="ti ti-logout"></i> Keluar
+    </button>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════════════════════
+     MAIN
+══════════════════════════════════════════════════════════ -->
+<div class="main">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="topbar-btn hide-desktop" id="menu-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">
+        <i class="ti ti-menu-2"></i>
+      </button>
+      <div>
+        <div class="page-title" id="topbar-title">Dashboard</div>
+        <div class="page-breadcrumb" id="topbar-crumb">SIM-HUMAS › Dashboard</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <button class="topbar-btn" title="Notifikasi" onclick="Utils.showToast('3 notifikasi baru', '')">
+        <i class="ti ti-bell"></i>
+        <span class="notif-dot"></span>
+      </button>
+      <button class="topbar-btn" title="Pencarian">
+        <i class="ti ti-search"></i>
+      </button>
+      <button class="btn btn-primary" onclick="Router.navigate('ai')">
+        <i class="ti ti-brain"></i>
+        <span class="hide-mobile">AI Studio</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- CONTENT AREA -->
+  <div class="content">
+
+    <!-- ═══════════════════════════════════════════════════════
+         PAGE: DASHBOARD
+    ═══════════════════════════════════════════════════════ -->
+    <div class="page active" id="page-dashboard">
+
+      <!-- Welcome Banner -->
+      <div class="papua-header">
+        <div class="ph-text">
+          <div class="ph-title">Selamat Datang, <span id="user-name-dash">Admin HUMAS</span> 👋</div>
+          <div class="ph-sub">Dinas PUPR Provinsi Papua Barat Daya — <span id="curr-date"></span></div>
+        </div>
+        <div class="ph-stats">
+          <div class="ph-stat">
+            <div class="ph-stat-val" id="stat-performa">89%</div>
+            <div class="ph-stat-lbl">Performa Konten</div>
+          </div>
+          <div class="ph-stat">
+            <div class="ph-stat-val" id="stat-tugas">12</div>
+            <div class="ph-stat-lbl">Tugas Aktif</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stat Cards -->
+      <div class="stats-grid">
+        <div class="stat-card green">
+          <div class="stat-icon"><i class="ti ti-news"></i></div>
+          <div class="stat-value" id="stat-berita">148</div>
+          <div class="stat-label">Total Berita Terbit</div>
+          <div class="stat-change up"><i class="ti ti-trending-up" style="font-size:13px"></i> +12 bulan ini</div>
+        </div>
+        <div class="stat-card gold">
+          <div class="stat-icon"><i class="ti ti-eye"></i></div>
+          <div class="stat-value" id="stat-tayangan">24.7K</div>
+          <div class="stat-label">Total Tayangan</div>
+          <div class="stat-change up"><i class="ti ti-trending-up" style="font-size:13px"></i> +8.3% vs bulan lalu</div>
+        </div>
+        <div class="stat-card blue">
+          <div class="stat-icon"><i class="ti ti-photo"></i></div>
+          <div class="stat-value" id="stat-media">436</div>
+          <div class="stat-label">Aset Media</div>
+          <div class="stat-change up"><i class="ti ti-trending-up" style="font-size:13px"></i> +28 minggu ini</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-icon"><i class="ti ti-clock"></i></div>
+          <div class="stat-value" id="stat-review">7</div>
+          <div class="stat-label">Menunggu Review</div>
+          <div class="stat-change down"><i class="ti ti-alert-circle" style="font-size:13px"></i> 3 mendesak</div>
+        </div>
+      </div>
+
+      <!-- Recent News + Activity -->
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><i class="ti ti-news" style="color:var(--green)"></i> Berita Terbaru</div>
+            <button class="btn btn-outline btn-sm" onclick="Router.navigate('berita')">Lihat Semua</button>
+          </div>
+          <div class="card-body p-0">
+            <table>
+              <thead>
+                <tr>
+                  <th>Judul</th><th>Kategori</th><th>Status</th><th>Tanggal</th>
+                </tr>
+              </thead>
+              <tbody id="news-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><i class="ti ti-activity" style="color:var(--gold)"></i> Aktivitas Terkini</div>
+          </div>
+          <div class="card-body">
+            <div class="activity-list" id="activity-list"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts + Agenda -->
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><i class="ti ti-chart-bar" style="color:var(--blue)"></i> Performa Konten Bulanan</div>
+          </div>
+          <div class="card-body">
+            <div class="chart-bars" id="chart-bars"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><i class="ti ti-calendar" style="color:var(--green)"></i> Agenda Mendatang</div>
+          </div>
+          <div class="card-body">
+            <div id="agenda-dash"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         PAGE: MANAJEMEN BERITA
+    ═══════════════════════════════════════════════════════ -->
+    <div class="page" id="page-berita">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+        <div>
+          <h2 style="font-size:18px;font-weight:800;color:var(--navy)">Manajemen Berita</h2>
+          <p style="font-size:12px;color:var(--text3)">Kelola semua konten berita dan informasi publik</p>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-outline" onclick="Utils.showToast('Filter aktif', '')"><i class="ti ti-filter"></i> Filter</button>
+          <button class="btn btn-gold" onclick="Utils.showModal('modal-news-editor')">
+            <i class="ti ti-plus"></i> Buat Berita Baru
+          </button>
+        </div>
+      </div>
+
+      <!-- Cards Grid -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px" id="news-cards-grid"></div>
+
+      <!-- Table -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Semua Berita</div>
+          <input type="text" id="berita-search" placeholder="Cari berita..." class="form-input" style="width:200px;padding:6px 10px;font-size:12px">
+        </div>
+        <div class="card-body p-0">
+          <table>
+            <thead>
+              <tr>
+                <th>Judul</th><th>Penulis</th><th>Kategori</th><th>Status</th><th>Tayangan</th><th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="all-news-table"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         PAGE: AI CONTENT STUDIO
+    ═══════════════════════════════════════════════════════ -->
+    <div class="page" id="page-ai">
+      <div style="margin-bottom:20px">
+        <h2 style="font-size:18px;font-weight:800;color:var(--navy)">AI Content Studio</h2>
+        <p style="font-size:12px;color:var(--text3)">Buat konten berkualitas tinggi dengan bantuan kecerdasan buatan</p>
+      </div>
+
+      <!-- AI Panel -->
+      <div class="ai-panel">
+        <div class="ai-header">
+          <div class="ai-icon">🤖</div>
+          <div>
+            <div class="ai-title">Generator Konten Cerdas</div>
+            <div class="ai-sub">Didukung Claude AI — Khusus PUPR Papua Barat Daya</div>
+          </div>
+        </div>
+        <div class="ai-prompt-row">
+          <input class="ai-input" id="ai-prompt" placeholder="Contoh: Buat siaran pers tentang pembangunan jalan Trans Papua Barat Daya sepanjang 45 km...">
+          <button class="btn btn-gold" id="ai-generate-btn" onclick="AIStudioPage.generateContent()">
+            <i class="ti ti-sparkles"></i> Generate
+          </button>
+        </div>
+        <div class="ai-chips">
+          <span class="ai-chip" onclick="AIStudioPage.setPrompt('Siaran pers pembangunan infrastruktur jalan di Papua Barat Daya')">📰 Siaran Pers</span>
+          <span class="ai-chip" onclick="AIStudioPage.setPrompt('Laporan progress proyek irigasi pertanian Papua Barat Daya')">📋 Laporan Proyek</span>
+          <span class="ai-chip" onclick="AIStudioPage.setPrompt('Berita kegiatan seremoni peresmian gedung pemerintahan Sorong')">🎉 Berita Kegiatan</span>
+          <span class="ai-chip" onclick="AIStudioPage.setPrompt('Pengumuman tender pengadaan konstruksi PUPR Papua Barat Daya')">📢 Pengumuman</span>
+          <span class="ai-chip" onclick="AIStudioPage.setPrompt('Caption media sosial foto kegiatan survei lapangan PUPR')">📱 Media Sosial</span>
+          <span class="ai-chip" onclick="AIStudioPage.setPrompt('Sambutan Kepala Dinas PUPR Papua Barat Daya pada rapat koordinasi')">🎤 Sambutan</span>
+        </div>
+        <div class="ai-loading" id="ai-loading">
+          <div class="spinner"></div>
+          <p style="margin-top:10px;font-size:12px;opacity:.7">AI sedang menyusun konten...</p>
+        </div>
+        <div class="ai-result scroll-sm" id="ai-result"></div>
+        <div style="display:none;margin-top:12px;justify-content:flex-end;gap:8px" id="ai-actions">
+          <button class="btn" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:12px" onclick="AIStudioPage.copyResult()">
+            <i class="ti ti-copy"></i> Salin
+          </button>
+          <button class="btn btn-gold" style="font-size:12px" onclick="AIStudioPage.useInEditor()">
+            <i class="ti ti-edit"></i> Gunakan di Editor
+          </button>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><div class="card-title">🎨 Generator Template</div></div>
+          <div class="card-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+              <div class="template-btn" onclick="AIStudioPage.generateTemplate('infografis')">
+                <div style="font-size:32px;margin-bottom:8px">📊</div>
+                <div style="font-size:13px;font-weight:700;color:var(--navy)">Infografis</div>
+                <div style="font-size:11px;color:var(--text3)">Data visual proyek</div>
+              </div>
+              <div class="template-btn" onclick="AIStudioPage.generateTemplate('siaran')">
+                <div style="font-size:32px;margin-bottom:8px">📄</div>
+                <div style="font-size:13px;font-weight:700;color:var(--navy)">Siaran Pers</div>
+                <div style="font-size:11px;color:var(--text3)">Template formal</div>
+              </div>
+              <div class="template-btn" onclick="AIStudioPage.generateTemplate('sosmed')">
+                <div style="font-size:32px;margin-bottom:8px">📱</div>
+                <div style="font-size:13px;font-weight:700;color:var(--navy)">Konten Sosmed</div>
+                <div style="font-size:11px;color:var(--text3)">Instagram / Facebook</div>
+              </div>
+              <div class="template-btn" onclick="AIStudioPage.generateTemplate('banner')">
+                <div style="font-size:32px;margin-bottom:8px">🖼️</div>
+                <div style="font-size:13px;font-weight:700;color:var(--navy)">Banner Digital</div>
+                <div style="font-size:11px;color:var(--text3)">Spanduk &amp; backdrop</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">📜 Riwayat AI</div></div>
+          <div class="card-body">
+            <div id="ai-history" style="display:flex;flex-direction:column;gap:6px"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         PAGE: GALERI MEDIA
+    ═══════════════════════════════════════════════════════ -->
+    <div class="page" id="page-galeri">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+        <div>
+          <h2 style="font-size:18px;font-weight:800;color:var(--navy)">Galeri Media</h2>
+          <p style="font-size:12px;color:var(--text3)">Kelola foto, video, dan aset media digital</p>
+        </div>
+        <button class="btn btn-primary"><i class="ti ti-upload"></i> Upload Media</button>
+      </div>
+      <div class="upload-zone" id="upload-zone" style="margin-bottom:20px">
+        <div class="upload-icon">📤</div>
+        <div class="upload-text">Klik atau drag &amp; drop file ke sini</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:6px">JPG, PNG, MP4, PDF — Maks. 50MB</div>
+      </div>
+      <div class="section-title">
+        <h3>Foto Kegiatan Infrastruktur</h3>
+        <div class="section-title-line"></div>
+      </div>
+      <div class="gallery-grid" id="gallery-grid"></div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         PAGE: PUBLIKASI RESMI
+    ═══════════════════════════════════════════════════════ -->
+    <div class="page" id="page-publikasi">
+      <div style="margin-bottom:20px">
+        <h2 style="font-size:18px;font-weight:800;color:var(--navy)">Publikasi Resmi</h2>
+        <p style="font-size:12px;color:var(--text3)">Dokumen resmi, regulasi, dan publikasi kelembagaan PUPR</p>
+      </div>
+      <div id="pub-list"></div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         PAGE: AGENDA KEGIATAN
+    ═══════════════════════════════════════════════════════ -->
+    <div class="page" id="page-agenda">
+      <div style="margin-bottom:20px">
+        <h2 style="font-size:18px;font-weight:800;color:var(--navy)">Agenda Kegiatan</h2>
+        <p style="font-size:12px;color:var(--text3)">Jadwal dan kegiatan Dinas PUPR Papua Barat Daya</p>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Minggu Ini</div>
+            <div style="display:flex;gap:6px">
+              <button class="btn btn-outline btn-icon btn-sm"><i class="ti ti-chevron-left"></i></button>
+              <button class="btn btn-outline btn-icon btn-sm"><i class="ti ti-chevron-right"></i></button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="cal-bar" id="cal-week"></div>
+            <div id="agenda-events"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Tambah Agenda</div></div>
+          <div class="card-body">
+            <div class="form-group">
+              <label class="form-label">Judul Kegiatan</label>
+              <input type="text" id="agenda-judul" class="form-input" placeholder="Nama kegiatan...">
+            </div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">Tanggal</label>
+                <input type="date" id="agenda-tanggal" class="form-input">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Waktu</label>
+                <input type="time" id="agenda-waktu" class="form-input">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Lokasi</label>
+              <input type="text" id="agenda-lokasi" class="form-input" placeholder="Nama tempat / alamat...">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Keterangan</label>
+              <textarea class="form-textarea" style="min-height:80px" placeholder="Detail kegiatan..."></textarea>
+            </div>
+            <button id="btn-save-agenda" class="btn btn-primary" style="width:100%;justify-content:center">
+              <i class="ti ti-check"></i> Simpan Agenda
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         PAGE: LAPORAN & STATISTIK
+    ═══════════════════════════════════════════════════════ -->
+    <div class="page" id="page-laporan">
+      <div style="margin-bottom:20px">
+        <h2 style="font-size:18px;font-weight:800;color:var(--navy)">Laporan &amp; Statistik</h2>
+        <p style="font-size:12px;color:var(--text3)">Analitik kinerja komunikasi dan penyebaran informasi</p>
+      </div>
+      <div class="report-stat">
+        <div class="r-card">
+          <div class="r-num" id="r-stat-berita" style="color:var(--green)">148</div>
+          <div class="r-label">Berita Terbit 2025</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:74%;background:var(--green)"></div></div>
+        </div>
+        <div class="r-card">
+          <div class="r-num" id="r-stat-tayangan" style="color:var(--gold)">24.7K</div>
+          <div class="r-label">Total Tayangan</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:83%;background:var(--gold)"></div></div>
+        </div>
+        <div class="r-card">
+          <div class="r-num" id="r-stat-media" style="color:var(--blue)">436</div>
+          <div class="r-label">Aset Media</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:58%;background:var(--blue)"></div></div>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><div class="card-title">📊 Berita per Kategori</div></div>
+          <div class="card-body" id="category-chart"></div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📈 Tayangan Bulanan 2025</div>
+            <button class="btn btn-outline btn-sm" onclick="Utils.showToast('Mengunduh laporan PDF...','success')">
+              <i class="ti ti-download"></i> Ekspor
+            </button>
+          </div>
+          <div class="card-body">
+            <div class="chart-bars" id="monthly-chart"></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">🏆 Konten Terpopuler</div></div>
+        <div class="card-body p-0">
+          <table>
+            <thead><tr><th>#</th><th>Judul Konten</th><th>Kategori</th><th>Tayangan</th><th>Engagement</th></tr></thead>
+            <tbody id="top-content-table"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         PAGE: MONITORING KONTEN
+    ═══════════════════════════════════════════════════════ -->
+    <div class="page" id="page-monitoring">
+      <div style="margin-bottom:20px">
+        <h2 style="font-size:18px;font-weight:800;color:var(--navy)">Monitoring Konten</h2>
+        <p style="font-size:12px;color:var(--text3)">Pantau status dan alur persetujuan konten secara real-time</p>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card green"><div class="stat-icon"><i class="ti ti-check"></i></div><div class="stat-value">89</div><div class="stat-label">Disetujui</div></div>
+        <div class="stat-card gold"><div class="stat-icon"><i class="ti ti-clock"></i></div><div class="stat-value">7</div><div class="stat-label">Pending Review</div></div>
+        <div class="stat-card blue"><div class="stat-icon"><i class="ti ti-edit"></i></div><div class="stat-value">12</div><div class="stat-label">Draft</div></div>
+        <div class="stat-card red"><div class="stat-icon"><i class="ti ti-x"></i></div><div class="stat-value">3</div><div class="stat-label">Ditolak / Revisi</div></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Alur Review Konten</div></div>
+        <div class="card-body">
+          <div style="display:flex;align-items:center;margin-bottom:24px;overflow-x:auto">
+            <div class="flow-step">
+              <div class="flow-icon" style="background:var(--gray2);color:var(--text3)"><i class="ti ti-edit"></i></div>
+              <div style="font-size:12px;font-weight:700;color:var(--text2)">Dibuat</div>
+              <div style="font-size:11px;color:var(--text3)">Penulis / AI</div>
+            </div>
+            <div class="flow-connector"></div>
+            <div class="flow-step">
+              <div class="flow-icon" style="background:#e3f2fd;color:var(--blue)"><i class="ti ti-eye"></i></div>
+              <div style="font-size:12px;font-weight:700;color:var(--text2)">Review Editor</div>
+              <div style="font-size:11px;color:var(--text3)">Koreksi &amp; Edit</div>
+            </div>
+            <div class="flow-connector"></div>
+            <div class="flow-step">
+              <div class="flow-icon" style="background:var(--gold3);color:var(--gold)"><i class="ti ti-shield-check"></i></div>
+              <div style="font-size:12px;font-weight:700;color:var(--text2)">Persetujuan</div>
+              <div style="font-size:11px;color:var(--text3)">Kepala Bidang</div>
+            </div>
+            <div class="flow-connector"></div>
+            <div class="flow-step">
+              <div class="flow-icon" style="background:var(--green3);color:var(--green)"><i class="ti ti-world"></i></div>
+              <div style="font-size:12px;font-weight:700;color:var(--text2)">Terbit</div>
+              <div style="font-size:11px;color:var(--text3)">Publik / Website</div>
+            </div>
+          </div>
+          <table>
+            <thead>
+              <tr><th>Konten</th><th>Penulis</th><th>Tahap</th><th>Reviewer</th><th>Deadline</th><th>Aksi</th></tr>
+            </thead>
+            <tbody id="monitoring-table"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         PAGE: PENGATURAN
+    ═══════════════════════════════════════════════════════ -->
+    <div class="page" id="page-pengaturan">
+      <div style="margin-bottom:20px">
+        <h2 style="font-size:18px;font-weight:800;color:var(--navy)">Pengaturan Sistem</h2>
+        <p style="font-size:12px;color:var(--text3)">Konfigurasi sistem dan preferensi aplikasi</p>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><div class="card-title">⚙️ Informasi Instansi</div></div>
+          <div class="card-body">
+            <div class="form-group"><label class="form-label">Nama Instansi</label><input type="text" class="form-input" value="Dinas PUPR Provinsi Papua Barat Daya"></div>
+            <div class="form-group"><label class="form-label">Email Resmi</label><input type="email" class="form-input" value="info@pupr-papbd.go.id"></div>
+            <div class="form-group"><label class="form-label">Website</label><input type="url" class="form-input" value="https://pupr.papuabaratdaya.go.id"></div>
+            <div class="form-group"><label class="form-label">Alamat Kantor</label><textarea class="form-textarea" style="min-height:70px">Jl. Basuki Rahmat, Kota Sorong, Papua Barat Daya</textarea></div>
+            <button class="btn btn-primary" onclick="Utils.showToast('Pengaturan instansi disimpan', 'success')">
+              <i class="ti ti-device-floppy"></i> Simpan
+            </button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">👤 Manajemen Pengguna</div></div>
+          <div class="card-body">
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:10px;background:var(--gray1);border-radius:8px">
+                <div style="display:flex;align-items:center;gap:10px">
+                  <div class="avatar" style="width:36px;height:36px;font-size:12px">AD</div>
+                  <div><p style="font-size:13px;font-weight:700;color:var(--navy)">Admin HUMAS</p><span style="font-size:11px;color:var(--text3)">Administrator</span></div>
+                </div>
+                <span class="badge-published badge">Aktif</span>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:10px;background:var(--gray1);border-radius:8px">
+                <div style="display:flex;align-items:center;gap:10px">
+                  <div class="avatar" style="width:36px;height:36px;font-size:12px;background:linear-gradient(135deg,var(--blue),#1976d2)">ED</div>
+                  <div><p style="font-size:13px;font-weight:700;color:var(--navy)">Editor Konten</p><span style="font-size:11px;color:var(--text3)">Editor</span></div>
+                </div>
+                <span class="badge-published badge">Aktif</span>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:10px;background:var(--gray1);border-radius:8px">
+                <div style="display:flex;align-items:center;gap:10px">
+                  <div class="avatar" style="width:36px;height:36px;font-size:12px;background:linear-gradient(135deg,#7b1fa2,#9c27b0)">RP</div>
+                  <div><p style="font-size:13px;font-weight:700;color:var(--navy)">Reporter Lapangan</p><span style="font-size:11px;color:var(--text3)">Reporter</span></div>
+                </div>
+                <span class="badge-published badge">Aktif</span>
+              </div>
+            </div>
+            <button class="btn btn-outline" style="width:100%;justify-content:center;margin-top:12px" onclick="Utils.showToast('Tambah pengguna baru', '')">
+              <i class="ti ti-user-plus"></i> Tambah Pengguna
+            </button>
+          </div>
+        </div>
+
+        <!-- Supabase Config Card -->
+        <div class="card" style="grid-column:span 2">
+          <div class="card-header">
+            <div class="card-title">🔌 Konfigurasi Supabase</div>
+            <a href="../../docs/SUPABASE_SETUP.md" class="btn btn-outline btn-sm" onclick="Utils.showToast('Buka file docs/SUPABASE_SETUP.md', '')">
+              <i class="ti ti-book"></i> Panduan Setup
+            </a>
+          </div>
+          <div class="card-body">
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">Supabase URL</label>
+                <input type="url" class="form-input" id="sb-url-input" placeholder="https://xxxxx.supabase.co">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Supabase Anon Key</label>
+                <input type="text" class="form-input" id="sb-key-input" placeholder="eyJhbGciOiJIUzI1NiIs...">
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <button class="btn btn-primary" onclick="saveSupabaseConfig()">
+                <i class="ti ti-plug"></i> Hubungkan Supabase
+              </button>
+              <span id="sb-status" style="font-size:12px;color:var(--text3)">
+                <i class="ti ti-circle" style="color:var(--gold)"></i> Belum dikonfigurasi
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- ══════════════════════════════════════════════════════════
+     MODAL: EDITOR BERITA
+══════════════════════════════════════════════════════════ -->
+<div class="modal-bg" id="modal-news-editor">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title"><i class="ti ti-edit" style="color:var(--green)"></i> Editor Berita</div>
+      <button class="modal-close" onclick="Utils.hideModal('modal-news-editor')">
+        <i class="ti ti-x"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <!-- AI helper -->
+      <div style="background:var(--navy);border-radius:10px;padding:14px;margin-bottom:16px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+          <div style="font-size:18px">🤖</div>
+          <div>
+            <div style="font-size:13px;font-weight:700;color:#fff">Bantu Tulis dengan AI</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.5)">Masukkan topik, AI akan membuatkan draf berita</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <input class="ai-input" id="editor-ai-prompt" placeholder="Contoh: Peresmian jembatan di Sorong Selatan...">
+          <button class="btn btn-gold" style="font-size:12px;flex-shrink:0" onclick="AIStudioPage.generateForEditor()">
+            <i class="ti ti-sparkles"></i> Generate
+          </button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Judul Berita <span style="color:var(--red)">*</span></label>
+        <input type="text" id="news-title-input" class="form-input" placeholder="Judul berita yang menarik...">
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Kategori</label>
+          <select id="news-kategori" class="form-select">
+            <option value="Infrastruktur Jalan">Infrastruktur Jalan</option>
+            <option value="Sumber Daya Air">Sumber Daya Air</option>
+            <option value="Permukiman">Permukiman</option>
+            <option value="Bina Marga">Bina Marga</option>
+            <option value="Kegiatan Pimpinan">Kegiatan Pimpinan</option>
+            <option value="Pengumuman">Pengumuman</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select id="news-status" class="form-select">
+            <option value="draft">Draft</option>
+            <option value="review">Kirim ke Review</option>
+            <option value="published">Terbitkan</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Isi Berita <span style="color:var(--red)">*</span></label>
+        <textarea id="news-body-input" class="form-textarea" placeholder="Tulis isi berita di sini..." style="min-height:200px"></textarea>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:8px">
+        <button class="btn btn-outline" onclick="Utils.hideModal('modal-news-editor')">Batal</button>
+        <button class="btn btn-primary" onclick="BeritaPage.saveBerita()">
+          <i class="ti ti-device-floppy"></i> Simpan Berita
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <i class="ti ti-check" id="toast-icon"></i>
+  <span id="toast-msg">Berhasil</span>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SCRIPTS
+══════════════════════════════════════════════════════════ -->
+<!-- Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+<!-- App Core -->
+<script src="../assets/js/supabase.config.js"></script>
+<script src="../assets/js/auth.js"></script>
+<script src="../assets/js/utils.js"></script>
+<script src="../assets/js/router.js"></script>
+<script src="../assets/js/api.js"></script>
+
+<!-- Page Modules -->
+<script src="../assets/js/dashboard.js"></script>
+<script src="../assets/js/berita.js"></script>
+<script src="../assets/js/galeri.js"></script>
+<script src="../assets/js/ai-studio.js"></script>
+
+<style>
+  .template-btn {
+    border: 1.5px solid var(--gray2);
+    border-radius: 10px;
+    padding: 14px;
+    cursor: pointer;
+    transition: all var(--transition);
+    text-align: center;
+  }
+  .template-btn:hover {
+    border-color: var(--green);
+    background: var(--green3);
+    transform: translateY(-2px);
+  }
+</style>
+
+<script>
+  // ── INIT APP ─────────────────────────────────────────────────
+  (async () => {
+    // Auth guard
+    const user = await Auth.requireAuth();
+    if (!user) return;
+
+    // Render user info di sidebar
+    Utils.renderUserInfo(user);
+
+    // Sync user name di welcome banner
+    const dashName = document.getElementById('user-name-dash');
+    if (dashName) dashName.textContent = user.full_name || user.email;
+
+    // Init router
+    Router.init();
+
+    // Register page callbacks
+    Router.onNavigate('dashboard',  () => DashboardPage.init());
+    Router.onNavigate('berita',     () => BeritaPage.init());
+    Router.onNavigate('galeri',     () => GaleriPage.init());
+    Router.onNavigate('agenda',     () => AgendaPage.init());
+    Router.onNavigate('laporan',    () => LaporanPage.init());
+    Router.onNavigate('monitoring', () => MonitoringPage.init());
+    Router.onNavigate('publikasi',  () => PublikasiPage.init());
+    Router.onNavigate('ai',         () => AIStudioPage.init());
+
+    // Init modal backdrops
+    Utils.initModalBackdrop();
+
+    // Auto-init current page
+    DashboardPage.init();
+  })();
+
+  // ── SAVE SUPABASE CONFIG ──────────────────────────────────────
+  function saveSupabaseConfig() {
+    const url = document.getElementById('sb-url-input')?.value?.trim();
+    const key = document.getElementById('sb-key-input')?.value?.trim();
+
+    if (!url || !key) {
+      Utils.showToast('URL dan Key Supabase wajib diisi.', 'error');
+      return;
+    }
+
+    // Simpan ke localStorage untuk demo
+    localStorage.setItem('sim_sb_url', url);
+    localStorage.setItem('sim_sb_key', key);
+
+    const statusEl = document.getElementById('sb-status');
+    if (statusEl) statusEl.innerHTML = '<i class="ti ti-circle" style="color:var(--green)"></i> Dikonfigurasi — Silakan reload halaman';
+
+    Utils.showToast('Konfigurasi Supabase disimpan! Isi supabase.config.js dengan nilai ini.', 'success');
+  }
+</script>
+</body>
+</html>
