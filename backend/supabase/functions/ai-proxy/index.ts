@@ -70,49 +70,59 @@ serve(async (req) => {
       contentText = data.content?.[0]?.text || ''
 
     } else if (provider === 'gemini') {
+      // Gemini via Google AI — API Key dari environment variable
       const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY')
       if (!GEMINI_API_KEY) throw new Error('GEMINI_API_KEY is not set')
 
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${GEMINI_API_KEY}`, {
+      const fullPrompt = `${SYSTEM_PROMPT}\n\n${prompt}`
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          system_instruction: { parts: { text: SYSTEM_PROMPT } },
-          contents: [{ parts: [{ text: prompt }] }]
+          contents: [{ parts: [{ text: fullPrompt }] }],
+          generationConfig: { maxOutputTokens: 1024 }
         }),
       })
-      if (!res.ok) throw new Error(`Gemini API Error: ${res.status}`)
+      if (!res.ok) {
+        const errBody = await res.text()
+        throw new Error(`Gemini API Error ${res.status}: ${errBody}`)
+      }
       const data = await res.json()
       contentText = data.candidates?.[0]?.content?.parts?.[0]?.text || ''
 
     } else if (provider === 'chatgpt') {
-      const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY')
-      if (!OPENAI_API_KEY) throw new Error('OPENAI_API_KEY is not set')
-
-      const res = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${OPENAI_API_KEY}`,
-        },
-        body: JSON.stringify({
-          model: 'gpt-4o',
-          messages: [
-            { role: 'system', content: SYSTEM_PROMPT },
-            { role: 'user', content: prompt }
-          ]
-        }),
+      // ChatGPT via Pollinations AI — GRATIS, tanpa API Key
+      const fullPrompt = `${SYSTEM_PROMPT}\n\n${prompt}`
+      const encodedPrompt = encodeURIComponent(fullPrompt)
+      const res = await fetch(`https://text.pollinations.ai/${encodedPrompt}?model=openai&json=false`, {
+        method: 'GET',
+        headers: { 'Accept': 'text/plain' },
       })
-      if (!res.ok) throw new Error(`OpenAI API Error: ${res.status}`)
-      const data = await res.json()
-      contentText = data.choices?.[0]?.message?.content || ''
+      if (!res.ok) throw new Error(`Pollinations (ChatGPT) API Error: ${res.status}`)
+      contentText = await res.text()
 
     } else if (provider === 'nanobanana') {
-      // Mock Nano Banana API
-      contentText = `[Nano Banana API] Respons simulasi untuk prompt: "${prompt}"\n\n(Catatan: Endpoint API Nano Banana perlu disesuaikan dengan dokumentasi resminya).`
+      // Nano Banana via Pollinations AI — GRATIS
+      const fullPrompt = `${SYSTEM_PROMPT}\n\n${prompt}`
+      const encodedPrompt = encodeURIComponent(fullPrompt)
+      const res = await fetch(`https://text.pollinations.ai/${encodedPrompt}?model=mistral&json=false`, {
+        method: 'GET',
+        headers: { 'Accept': 'text/plain' },
+      })
+      if (!res.ok) throw new Error(`Nano Banana (Mistral) API Error: ${res.status}`)
+      contentText = await res.text()
+
     } else if (provider === 'veo') {
-      // Mock Veo 3.1 API
-      contentText = `[Veo 3.1 API] Respons simulasi untuk prompt: "${prompt}"\n\n(Catatan: Integrasi Veo 3.1 memerlukan API Key dan endpoint Google/Veo yang valid).`
+      // Veo 3.1 via Pollinations AI — GRATIS
+      const fullPrompt = `${SYSTEM_PROMPT}\n\n${prompt}`
+      const encodedPrompt = encodeURIComponent(fullPrompt)
+      const res = await fetch(`https://text.pollinations.ai/${encodedPrompt}?model=llama&json=false`, {
+        method: 'GET',
+        headers: { 'Accept': 'text/plain' },
+      })
+      if (!res.ok) throw new Error(`Veo (Llama) API Error: ${res.status}`)
+      contentText = await res.text()
+
     } else {
       throw new Error(`Unknown provider: ${provider}`)
     }
