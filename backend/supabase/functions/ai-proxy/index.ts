@@ -59,7 +59,8 @@ serve(async (req) => {
       if (!GEMINI_API_KEY) throw new Error('GEMINI_API_KEY is not set')
 
       const fullPrompt = `${SYSTEM_PROMPT}\n\n${prompt}`
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`, {
+
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
