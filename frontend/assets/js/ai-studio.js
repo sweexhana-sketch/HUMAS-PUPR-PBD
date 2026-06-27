@@ -197,13 +197,45 @@ Sertakan detail teknis infrastruktur yang relevan jika diminta. Format output de
 
   // ── GENERATE TEMPLATE ─────────────────────────────────────────
   function generateTemplate(type) {
-    const msgs = {
-      infografis: 'Template infografis siap dibuat...',
-      siaran:     'Template siaran pers formal siap...',
-      sosmed:     'Template konten media sosial siap...',
-      banner:     'Template banner digital siap...',
-    };
-    Utils.showToast(msgs[type] || 'Membuat template...', 'success');
+    const promptEl = document.getElementById('ai-prompt');
+    const userPrompt = promptEl?.value?.trim();
+    
+    if (!userPrompt) {
+      Utils.showToast('Masukkan topik atau prompt di atas terlebih dahulu!', 'error');
+      if (promptEl) promptEl.focus();
+      return;
+    }
+
+    if (type === 'infografis' || type === 'banner') {
+      Utils.showToast('AI sedang memvisualisasikan gambar...', 'success');
+      setGeneratingState(true);
+      
+      // Menggunakan Pollinations AI untuk Text-to-Image (Gratis)
+      const imagePrompt = `Desain ${type} profesional dengan topik: ${userPrompt}, desain elegan, resolusi tinggi, kementerian PUPR, Indonesia`;
+      const encodedPrompt = encodeURIComponent(imagePrompt);
+      const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=800&height=800&nologo=true`;
+      
+      const imgHtml = `
+      <div style="text-align:center; padding:10px;">
+        <h4 style="margin-bottom:15px; color:var(--navy);">Hasil Visualisasi (${type === 'infografis' ? 'Infografis' : 'Banner'})</h4>
+        <img src="${imageUrl}" alt="Visualisasi AI" style="max-width:100%; border-radius:8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 15px;">
+        <p style="font-size:12px; color:var(--text3);">*Gambar divisualisasikan secara otomatis oleh AI Text-to-Image</p>
+      </div>`;
+      
+      // Delay sedikit agar spinner terlihat sebelum gambar mulai dimuat browser
+      setTimeout(() => {
+        showResult(imgHtml, true);
+        setGeneratingState(false);
+      }, 800);
+      
+    } else {
+      // Untuk siaran pers / sosmed, gabungkan prompt
+      const prefix = type === 'siaran' ? 'Buatkan format Siaran Pers formal untuk:' : 'Buatkan konten Sosial Media (Instagram/Facebook) yang menarik untuk:';
+      setPrompt(`${prefix} ${userPrompt}`);
+      setTimeout(() => {
+        generateContent();
+      }, 300);
+    }
   }
 
   // ── HELPERS ───────────────────────────────────────────────────
@@ -224,13 +256,17 @@ Sertakan detail teknis infrastruktur yang relevan jika diminta. Format output de
     }
   }
 
-  function showResult(text) {
+  function showResult(text, isHtml = false) {
     const resultEl  = document.getElementById('ai-result');
     const actionsEl = document.getElementById('ai-actions');
 
     if (resultEl) {
       resultEl.style.display = 'block';
-      resultEl.textContent   = text;
+      if (isHtml) {
+        resultEl.innerHTML = text;
+      } else {
+        resultEl.textContent = text;
+      }
     }
     if (actionsEl) actionsEl.style.display = 'flex';
   }
