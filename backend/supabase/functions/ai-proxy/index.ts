@@ -74,6 +74,8 @@ serve(async (req) => {
       const data = await res.json()
       contentText = data.candidates?.[0]?.content?.parts?.[0]?.text || ''
 
+
+
     } else if (provider === 'chatgpt') {
       // ChatGPT via Pollinations AI — GRATIS, tanpa API Key
       const fullPrompt = `${SYSTEM_PROMPT}\n\n${prompt}`
