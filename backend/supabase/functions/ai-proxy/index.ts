@@ -92,7 +92,7 @@ serve(async (req) => {
       // Nano Banana via Pollinations AI — GRATIS
       const fullPrompt = `${SYSTEM_PROMPT}\n\n${prompt}`
       const encodedPrompt = encodeURIComponent(fullPrompt)
-      const res = await fetch(`https://text.pollinations.ai/${encodedPrompt}?model=mistral&json=false`, {
+      const res = await fetch(`https://text.pollinations.ai/${encodedPrompt}?model=openai&json=false`, {
         method: 'GET',
         headers: { 'Accept': 'text/plain' },
       })
@@ -103,7 +103,7 @@ serve(async (req) => {
       // Veo 3.1 via Pollinations AI — GRATIS
       const fullPrompt = `${SYSTEM_PROMPT}\n\n${prompt}`
       const encodedPrompt = encodeURIComponent(fullPrompt)
-      const res = await fetch(`https://text.pollinations.ai/${encodedPrompt}?model=llama&json=false`, {
+      const res = await fetch(`https://text.pollinations.ai/${encodedPrompt}?model=openai&json=false`, {
         method: 'GET',
         headers: { 'Accept': 'text/plain' },
       })
