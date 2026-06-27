@@ -9,10 +9,7 @@ const AIStudioPage = (() => {
   let isGenerating = false;
 
   // ── SUPABASE EDGE FUNCTION URL (proxy aman) ───────────────────
-  // Setelah deploy edge function, update URL ini:
-  // const AI_PROXY_URL = `${SUPABASE_URL}/functions/v1/ai-proxy`;
-  // Untuk sementara, panggil langsung ke Anthropic (GANTI dengan proxy saat production)
-  const AI_PROXY_URL = null; // Set ke URL edge function setelah deploy
+  const AI_PROXY_URL = 'https://udirpbfyqritfzecfcrb.supabase.co/functions/v1/ai-proxy';
 
   // API Key langsung (HANYA untuk development lokal, ganti dengan proxy di production!)
   const ANTHROPIC_KEY = 'YOUR_ANTHROPIC_API_KEY'; // Ganti dengan kunci Anda
