@@ -14,24 +14,8 @@ serve(async (req) => {
   }
 
   try {
-    // 1. Cek Autentikasi (Hanya user yang login yang boleh panggil API ini)
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      { global: { headers: { Authorization: req.headers.get('Authorization')! } } }
-    )
-    
-    const { data: { user }, error: authError } = await supabaseClient.auth.getUser()
-    
-    if (authError || !user) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 401,
-      })
-    }
-
     // 2. Ambil prompt & provider dari request body
-    const { prompt, provider = 'claude' } = await req.json()
+    const { prompt, provider = 'gemini' } = await req.json()
     if (!prompt) {
       return new Response(JSON.stringify({ error: 'Prompt is required' }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
