@@ -73,7 +73,10 @@ Sertakan detail teknis infrastruktur yang relevan jika diminta. Format output de
           body: JSON.stringify({ prompt, provider }),
         });
 
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.error || `HTTP ${res.status}`);
+        }
         const json = await res.json();
         resultText = json.text || json.content || 'Tidak ada respons dari AI.';
 
