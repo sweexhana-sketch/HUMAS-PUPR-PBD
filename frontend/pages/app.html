@@ -310,6 +310,94 @@
         </div>
       </div>
 
+      <!-- ═══════ POSTER FOTO ASN / PEJABAT ═══════ -->
+      <div class="card" style="margin-bottom:20px;overflow:visible">
+        <div class="card-header" style="background:linear-gradient(135deg,var(--navy),var(--navy3));border-radius:var(--radius-md) var(--radius-md) 0 0;padding:16px 20px">
+          <div>
+            <div class="card-title" style="color:#fff;font-size:15px">📸 Poster Ucapan Foto ASN / Pejabat</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.55);margin-top:3px">Upload foto ASN/Pejabat → Pilih hari besar → Generate poster ucapan realistis langsung di browser</div>
+          </div>
+        </div>
+        <div class="card-body" style="padding:20px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+
+            <!-- KOLOM KIRI: Form -->
+            <div>
+              <!-- Upload Area -->
+              <div id="asn-upload-area"
+                onclick="document.getElementById('asn-foto-input').click()"
+                ondragover="event.preventDefault();this.style.borderColor='var(--green)';this.style.background='var(--green3)'"
+                ondragleave="this.style.borderColor='var(--gray2)';this.style.background='var(--gray1)'"
+                ondrop="ASNPoster.handleDrop(event)"
+                style="border:2px dashed var(--gray2);border-radius:12px;padding:24px;text-align:center;cursor:pointer;background:var(--gray1);transition:.2s;margin-bottom:14px">
+                <div id="asn-upload-placeholder">
+                  <div style="font-size:36px;margin-bottom:8px">📷</div>
+                  <div style="font-weight:700;color:var(--navy);font-size:13px">Drag & Drop atau Klik untuk Upload Foto</div>
+                  <div style="font-size:11px;color:var(--text3);margin-top:4px">Format: JPG, PNG, WEBP • Maks 5MB</div>
+                </div>
+                <div id="asn-foto-preview" style="display:none">
+                  <img id="asn-preview-img" style="max-height:140px;border-radius:8px;box-shadow:var(--shadow-md);object-fit:cover">
+                  <div style="font-size:11px;color:var(--green);margin-top:8px;font-weight:600">✅ Foto berhasil diupload</div>
+                </div>
+              </div>
+              <input type="file" id="asn-foto-input" accept="image/*" style="display:none" onchange="ASNPoster.handleFileInput(this)">
+
+              <!-- Form Identitas -->
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <div>
+                  <label style="font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:4px">Nama ASN / Pejabat</label>
+                  <input id="asn-nama" class="form-input" placeholder="Contoh: Ir. Ahmad Fauzi, M.T." style="width:100%">
+                </div>
+                <div>
+                  <label style="font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:4px">Jabatan</label>
+                  <input id="asn-jabatan" class="form-input" placeholder="Contoh: Kepala Dinas PUPR Papua Barat Daya" style="width:100%">
+                </div>
+                <div>
+                  <label style="font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:4px">Pilih Hari Besar</label>
+                  <select id="asn-hari-besar" class="form-input" style="width:100%">
+                    <option value="hut-ri">🇮🇩 HUT Kemerdekaan RI</option>
+                    <option value="hari-pahlawan">⚔️ Hari Pahlawan (10 Nov)</option>
+                    <option value="sumpah-pemuda">✊ Hari Sumpah Pemuda (28 Okt)</option>
+                    <option value="hari-pancasila">🦅 Hari Lahir Pancasila (1 Jun)</option>
+                    <option value="hari-kartini">👩 Hari Kartini (21 Apr)</option>
+                    <option value="hari-pendidikan">📚 Hari Pendidikan Nasional (2 Mei)</option>
+                    <option value="hari-buruh">🔨 Hari Buruh (1 Mei)</option>
+                    <option value="idul-fitri">🌙 Hari Raya Idul Fitri</option>
+                    <option value="natal">🎄 Hari Natal (25 Des)</option>
+                    <option value="tahun-baru">🎆 Tahun Baru</option>
+                  </select>
+                </div>
+
+                <button class="btn btn-primary" onclick="ASNPoster.generate()" style="width:100%;justify-content:center;padding:12px;font-size:13px;font-weight:700;margin-top:4px">
+                  <i class="ti ti-wand"></i> &nbsp; Generate Poster Sekarang
+                </button>
+              </div>
+            </div>
+
+            <!-- KOLOM KANAN: Canvas Preview -->
+            <div>
+              <div style="font-size:11px;font-weight:600;color:var(--text2);margin-bottom:8px">Preview Poster</div>
+              <div id="asn-canvas-wrapper" style="border-radius:12px;overflow:hidden;background:var(--gray1);border:1px solid var(--gray2);min-height:280px;display:flex;align-items:center;justify-content:center">
+                <div id="asn-canvas-placeholder" style="text-align:center;color:var(--text3)">
+                  <div style="font-size:48px;margin-bottom:8px">🖼️</div>
+                  <div style="font-size:12px">Poster akan muncul di sini setelah generate</div>
+                </div>
+                <canvas id="asn-poster-canvas" style="display:none;width:100%;height:auto;border-radius:12px"></canvas>
+              </div>
+              <div id="asn-download-bar" style="display:none;margin-top:12px;gap:8px">
+                <button onclick="ASNPoster.download()" class="btn btn-primary" style="flex:1;justify-content:center;font-size:12px">
+                  <i class="ti ti-download"></i> Download PNG
+                </button>
+                <button onclick="ASNPoster.share()" class="btn" style="background:var(--green);color:#fff;font-size:12px;flex:1;justify-content:center">
+                  <i class="ti ti-share"></i> Bagikan
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
       <!-- ═══════ TEMPLATE PROMPT HARI BESAR ═══════ -->
       <div class="card" style="margin-bottom:20px">
         <div class="card-header" style="border-bottom:1px solid var(--gray2);padding-bottom:14px">
@@ -722,6 +810,7 @@
 <script src="../assets/js/berita.js"></script>
 <script src="../assets/js/galeri.js"></script>
 <script src="../assets/js/ai-studio.js"></script>
+<script src="../assets/js/asn-poster.js"></script>
 
 <style>
   .template-btn {
