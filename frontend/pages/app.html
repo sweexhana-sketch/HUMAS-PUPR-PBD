@@ -354,7 +354,7 @@
                 </div>
                 <div>
                   <label style="font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:4px">Pilih Hari Besar</label>
-                  <select id="asn-hari-besar" class="form-input" style="width:100%">
+                  <select id="asn-hari-besar" class="form-input" style="width:100%" onchange="ASNPoster.updateCustomPrompt()">
                     <option value="hut-ri">🇮🇩 HUT Kemerdekaan RI</option>
                     <option value="hari-pahlawan">⚔️ Hari Pahlawan (10 Nov)</option>
                     <option value="sumpah-pemuda">✊ Hari Sumpah Pemuda (28 Okt)</option>
@@ -366,6 +366,25 @@
                     <option value="natal">🎄 Hari Natal (25 Des)</option>
                     <option value="tahun-baru">🎆 Tahun Baru</option>
                   </select>
+                </div>
+
+                <div style="border-top: 1px dashed var(--gray2); padding-top: 10px; margin-top: 5px;">
+                  <label style="font-size:11px;font-weight:600;color:var(--text2);display:flex;justify-content:space-between;margin-bottom:4px">
+                    <span>Model AI (Generatif Visual)</span>
+                  </label>
+                  <select id="asn-ai-model" class="form-input" style="width:100%;font-weight:500;color:var(--navy)">
+                    <option value="openai">ChatGPT (DALL-E 3) - Sangat Realistis</option>
+                    <option value="flux">Nano Banana (Flux.1) - Artistik & Tajam</option>
+                    <option value="midjourney">Midjourney Style - Sinematik</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label style="font-size:11px;font-weight:600;color:var(--text2);display:flex;justify-content:space-between;margin-bottom:4px">
+                    <span>Prompt Custom (Instruksi Visual)</span>
+                    <span style="font-size:10px;color:var(--text3);font-weight:normal">Bisa diedit</span>
+                  </label>
+                  <textarea id="asn-custom-prompt" class="form-input" style="width:100%;height:65px;font-size:12px;resize:none" placeholder="Masukkan deskripsi visual background..."></textarea>
                 </div>
 
                 <button class="btn btn-primary" onclick="ASNPoster.generate()" style="width:100%;justify-content:center;padding:12px;font-size:13px;font-weight:700;margin-top:4px">

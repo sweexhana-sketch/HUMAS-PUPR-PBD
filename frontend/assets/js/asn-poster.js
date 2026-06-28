@@ -168,6 +168,16 @@ const ASNPoster = (() => {
     reader.readAsDataURL(file);
   }
 
+  // ── UPDATE CUSTOM PROMPT ───────────────────────────────────────
+  function updateCustomPrompt() {
+    const hariId = document.getElementById('asn-hari-besar').value;
+    const config = HARI_BESAR[hariId];
+    const promptInput = document.getElementById('asn-custom-prompt');
+    if (config && promptInput) {
+      promptInput.value = config.prompt;
+    }
+  }
+
   // ── MAIN GENERATE ──────────────────────────────────────────────
   function generate() {
     if (!uploadedImage) {
@@ -181,6 +191,12 @@ const ASNPoster = (() => {
     const nama    = document.getElementById('asn-nama').value.trim()    || 'Nama ASN / Pejabat';
     const jabatan = document.getElementById('asn-jabatan').value.trim() || 'Jabatan — Dinas PUPR Papua Barat Daya';
     const config  = HARI_BESAR[hariId];
+    
+    // Ambil Model dan Custom Prompt
+    const aiModelEl = document.getElementById('asn-ai-model');
+    const aiModel = aiModelEl ? aiModelEl.value : 'openai';
+    const customPromptEl = document.getElementById('asn-custom-prompt');
+    const customPrompt = customPromptEl && customPromptEl.value.trim() ? customPromptEl.value.trim() : config.prompt;
 
     const canvas = document.getElementById('asn-poster-canvas');
     const placeholder = document.getElementById('asn-canvas-placeholder');
@@ -199,10 +215,12 @@ const ASNPoster = (() => {
     // ── FETCH AI BACKGROUND ──
     const aiImage = new Image();
     aiImage.crossOrigin = 'Anonymous'; // Penting agar canvas bisa didownload
-    const aiPrompt = config.prompt + ", no text, no letters, no words, clear space for typography";
+    
+    // Gabungkan prompt kustom dari user dengan suffix wajib untuk hasil terbaik
+    const aiPrompt = customPrompt + ", no text, no letters, no words, clear space for typography";
     const encodedPrompt = encodeURIComponent(aiPrompt);
-    // Kita gunakan model "openai" (dalle-3 via pollinations) untuk hasil lebih realistis seperti contoh
-    const aiUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=${CANVAS_W}&height=${CANVAS_H}&nologo=true&seed=${Math.floor(Math.random()*9999)}&model=openai`;
+    
+    const aiUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=${CANVAS_W}&height=${CANVAS_H}&nologo=true&seed=${Math.floor(Math.random()*9999)}&model=${aiModel}`;
 
     aiImage.onload = () => {
       canvas.width  = CANVAS_W;
@@ -615,7 +633,7 @@ const ASNPoster = (() => {
     });
   }
 
-  return { handleFileInput, handleDrop, generate, download, share };
+  return { handleFileInput, handleDrop, generate, download, share, updateCustomPrompt };
 
 })();
 
