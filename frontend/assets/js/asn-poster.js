@@ -30,7 +30,7 @@ const ASNPoster = (() => {
       bg1: '#b91c1c', bg2: '#7f1d1d', accent: '#fca5a5',
       topBar: '#dc2626', bottomBar: '#991b1b',
       ribbon: true, ribbonColor: '#ffffff',
-      prompt: `Dinas PUPR Papua Barat Daya government office building, group of Papuan government employees wearing Indonesian brown khaki civil servant uniform (PNS cokelat) standing together, Indonesian red and white flag, independence day decoration, professional architectural photography, ultra realistic 8k`
+      prompt: `Professional photography of a team of Indonesian government officials wearing tan uniforms, smiling, working in a modern office with futuristic glowing holographic infrastructure blueprints, glowing blue wireframe bridges and city data visualizations overlay, photorealistic, cinematic lighting, high resolution, 8k, independence day theme with red and white subtle accents`
     },
     'hari-pahlawan': {
       judul:     `HARI\nPAHLAWAN\nNASIONAL`,
@@ -41,7 +41,7 @@ const ASNPoster = (() => {
       bg1: '#92400e', bg2: '#451a03', accent: '#fcd34d',
       topBar: '#b45309', bottomBar: '#78350f',
       ribbon: false,
-      prompt: `Dinas PUPR Papua Barat Daya office, heroes monument in front, Papuan civil servants in brown government uniform standing respectfully, Indonesian flag half mast, solemn golden hour lighting, professional realistic photography 8k`
+      prompt: `Professional photography of a team of Indonesian government officials wearing tan uniforms, standing respectfully in a high-tech modern office, futuristic holographic blueprints of national monuments and city planning glowing in blue, photorealistic, cinematic lighting, high resolution, 8k, heroes day solemn golden hour atmosphere`
     },
     'sumpah-pemuda': {
       judul:     `SELAMAT\nHARI SUMPAH\nPEMUDA`,
@@ -52,7 +52,7 @@ const ASNPoster = (() => {
       bg1: '#1d4ed8', bg2: '#1e3a8a', accent: '#93c5fd',
       topBar: '#2563eb', bottomBar: '#1e40af',
       ribbon: false,
-      prompt: `Youth pledge day, Papuan government employees in brown khaki civil servant uniform, Indonesian flag colors, modern PUPR office building background, unity theme, bright sunny day, professional cinematic photography 8k`
+      prompt: `Professional photography of a diverse team of young Indonesian government officials in tan uniforms, collaborating energetically around a glowing futuristic holographic smart city map and digital blueprints, photorealistic, cinematic lighting, high resolution, 8k, modern PUPR office, unity theme`
     },
     'hari-pancasila': {
       judul:     `SELAMAT HARI\nLAHIR\nPANCASILA`,
@@ -63,7 +63,7 @@ const ASNPoster = (() => {
       bg1: '#0f766e', bg2: '#042f2e', accent: '#5eead4',
       topBar: '#14b8a6', bottomBar: '#0d9488',
       ribbon: false,
-      prompt: `Pancasila day, Papuan government employees in brown khaki uniform, golden Garuda emblem monument, PUPR Papua Barat Daya office background, diversity theme, sunny clear sky, ultra realistic 8k`
+      prompt: `Professional photography of Indonesian government officials in tan uniforms working together in a high-tech control room, massive glowing holographic maps of Indonesia and infrastructure data nodes, photorealistic, cinematic lighting, high resolution, 8k, professional corporate vibe`
     },
     'hari-kartini': {
       judul:     `SELAMAT\nHARI\nKARTINI`,
@@ -74,7 +74,7 @@ const ASNPoster = (() => {
       bg1: '#be185d', bg2: '#831843', accent: '#fbcfe8',
       topBar: '#ec4899', bottomBar: '#be185d',
       ribbon: false,
-      prompt: `Kartini day, Papuan female government employees in elegant traditional kebaya and brown government uniform, floral decoration, bright sunny office background, empowering women theme, ultra realistic 8k`
+      prompt: `Professional photography of female Indonesian government officials wearing elegant tan uniforms and subtle traditional touches, leading a presentation with glowing futuristic holographic building models and smart city blueprints, modern glass office, photorealistic, cinematic lighting, high resolution, 8k`
     },
     'hari-pendidikan': {
       judul:     `SELAMAT HARI\nPENDIDIKAN\nNASIONAL`,
@@ -85,7 +85,7 @@ const ASNPoster = (() => {
       bg1: '#7c3aed', bg2: '#4c1d95', accent: '#c4b5fd',
       topBar: '#8b5cf6', bottomBar: '#6d28d9',
       ribbon: false,
-      prompt: `National Education Day, Papuan civil servants in brown uniform holding books and blueprints, modern government office background, education and infrastructure theme, bright lighting, realistic photography 8k`
+      prompt: `Professional photography of Indonesian government officials in tan uniforms mentoring students in a futuristic laboratory, surrounded by glowing blue holographic data, digital books, and infrastructure wireframes, photorealistic, cinematic lighting, high resolution, 8k`
     },
     'hari-buruh': {
       judul:     `SELAMAT\nHARI BURUH\nINTERNASIONAL`,
@@ -96,7 +96,7 @@ const ASNPoster = (() => {
       bg1: '#c2410c', bg2: '#7c2d12', accent: '#fdba74',
       topBar: '#ea580c', bottomBar: '#c2410c',
       ribbon: false,
-      prompt: `May Day, Papuan construction workers and PUPR civil servants in hard hats and safety vests at infrastructure project site, road and bridge construction, morning light, ultra realistic 8k photography`
+      prompt: `Professional photography of Indonesian government officials in tan uniforms and construction workers with hard hats analyzing a glowing futuristic holographic bridge and heavy machinery blueprints, modern command center, photorealistic, cinematic lighting, high resolution, 8k`
     },
     'idul-fitri': {
       judul:     `SELAMAT\nHARI RAYA\nIDUL FITRI`,
@@ -107,7 +107,7 @@ const ASNPoster = (() => {
       bg1: '#15803d', bg2: '#052e16', accent: '#86efac',
       topBar: '#16a34a', bottomBar: '#15803d',
       ribbon: false,
-      prompt: `Eid Mubarak, Papuan government employees in brown khaki uniform and muslim traditional wear, shaking hands, mosque and PUPR office background, Islamic geometry decor, festive, realistic 8k`
+      prompt: `Professional photography of a team of Indonesian government officials wearing tan uniforms and neat modest attire, smiling in a modern office, subtle glowing holographic data grids, festive warm lighting, photorealistic, cinematic lighting, high resolution, 8k`
     },
     'natal': {
       judul:     `SELAMAT\nHARI\nNATAL`,
@@ -118,7 +118,7 @@ const ASNPoster = (() => {
       bg1: '#166534', bg2: '#052e16', accent: '#86efac',
       topBar: '#15803d', bottomBar: '#14532d',
       ribbon: false,
-      prompt: `Christmas day, Papuan civil servants in brown uniform, Christmas tree and festive lights decoration at PUPR office, joyful atmosphere, cinematic evening lighting, ultra realistic 8k photography`
+      prompt: `Professional photography of Indonesian government officials wearing tan uniforms in a modern office decorated with subtle festive lights, analyzing glowing futuristic holographic blueprints, warm cinematic lighting, photorealistic, high resolution, 8k`
     },
     'tahun-baru': {
       judul:     `SELAMAT\nTAHUN BARU\n${TAHUN}`,
@@ -129,7 +129,7 @@ const ASNPoster = (() => {
       bg1: '#1e3a8a', bg2: '#0f172a', accent: '#fde68a',
       topBar: '#1d4ed8', bottomBar: '#1e40af',
       ribbon: false,
-      prompt: `New Year celebration, fireworks in the sky above PUPR Papua Barat Daya office, Papuan government employees celebrating, festive atmosphere, dramatic night lighting, ultra realistic 8k`
+      prompt: `Professional photography of a team of Indonesian government officials wearing tan uniforms looking forward at a massive glowing futuristic holographic city masterplan and fireworks data visualization, modern high-tech office, photorealistic, cinematic lighting, high resolution, 8k`
     },
   };
 
