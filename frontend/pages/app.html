@@ -310,41 +310,42 @@
         </div>
       </div>
 
-      <div class="grid-2">
-        <div class="card">
-          <div class="card-header"><div class="card-title">🎨 Generator Template</div></div>
-          <div class="card-body">
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-              <div class="template-btn" onclick="AIStudioPage.generateTemplate('infografis')">
-                <div style="font-size:32px;margin-bottom:8px">📊</div>
-                <div style="font-size:13px;font-weight:700;color:var(--navy)">Infografis</div>
-                <div style="font-size:11px;color:var(--text3)">Data visual proyek</div>
-              </div>
-              <div class="template-btn" onclick="AIStudioPage.generateTemplate('siaran')">
-                <div style="font-size:32px;margin-bottom:8px">📄</div>
-                <div style="font-size:13px;font-weight:700;color:var(--navy)">Siaran Pers</div>
-                <div style="font-size:11px;color:var(--text3)">Template formal</div>
-              </div>
-              <div class="template-btn" onclick="AIStudioPage.generateTemplate('sosmed')">
-                <div style="font-size:32px;margin-bottom:8px">📱</div>
-                <div style="font-size:13px;font-weight:700;color:var(--navy)">Konten Sosmed</div>
-                <div style="font-size:11px;color:var(--text3)">Instagram / Facebook</div>
-              </div>
-              <div class="template-btn" onclick="AIStudioPage.generateTemplate('banner')">
-                <div style="font-size:32px;margin-bottom:8px">🖼️</div>
-                <div style="font-size:13px;font-weight:700;color:var(--navy)">Banner Digital</div>
-                <div style="font-size:11px;color:var(--text3)">Spanduk &amp; backdrop</div>
-              </div>
-            </div>
+      <!-- ═══════ TEMPLATE PROMPT HARI BESAR ═══════ -->
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-header" style="border-bottom:1px solid var(--gray2);padding-bottom:14px">
+          <div>
+            <div class="card-title" style="font-size:15px">🎨 Template Prompt AI — Hari Besar Kenegaraan</div>
+            <div style="font-size:11px;color:var(--text3);margin-top:3px">Klik kartu untuk langsung generate poster realistis PUPR Papua Barat Daya</div>
           </div>
         </div>
-        <div class="card">
-          <div class="card-header"><div class="card-title">📜 Riwayat AI</div></div>
-          <div class="card-body">
-            <div id="ai-history" style="display:flex;flex-direction:column;gap:6px"></div>
+        <div class="card-body">
+
+          <!-- Filter Kategori -->
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+            <button class="btn" id="filter-all" onclick="AIStudioPage.filterTemplates('all')"
+              style="font-size:11px;padding:5px 12px;background:var(--navy);color:#fff;border-radius:20px">Semua</button>
+            <button class="btn" id="filter-gambar" onclick="AIStudioPage.filterTemplates('gambar')"
+              style="font-size:11px;padding:5px 12px;background:var(--gray1);color:var(--text2);border-radius:20px">🖼️ Poster/Gambar</button>
+            <button class="btn" id="filter-teks" onclick="AIStudioPage.filterTemplates('teks')"
+              style="font-size:11px;padding:5px 12px;background:var(--gray1);color:var(--text2);border-radius:20px">📝 Teks/Siaran Pers</button>
+            <button class="btn" id="filter-nasional" onclick="AIStudioPage.filterTemplates('nasional')"
+              style="font-size:11px;padding:5px 12px;background:var(--gray1);color:var(--text2);border-radius:20px">🇮🇩 Hari Nasional</button>
           </div>
+
+          <!-- Grid Template Cards -->
+          <div id="template-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px"></div>
+
         </div>
       </div>
+
+      <!-- ═══════ RIWAYAT AI ═══════ -->
+      <div class="card">
+        <div class="card-header"><div class="card-title">📜 Riwayat AI</div></div>
+        <div class="card-body">
+          <div id="ai-history" style="display:flex;flex-direction:column;gap:6px"></div>
+        </div>
+      </div>
+
     </div>
 
     <!-- ═══════════════════════════════════════════════════════

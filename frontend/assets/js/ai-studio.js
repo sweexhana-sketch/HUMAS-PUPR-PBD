@@ -26,6 +26,8 @@ Sertakan detail teknis infrastruktur yang relevan jika diminta. Format output de
   // ── INIT ──────────────────────────────────────────────────────
   async function init() {
     await loadAIHistory();
+    // Render kartu template hari besar
+    setTimeout(() => renderTemplateGrid('all'), 100);
   }
 
   // ── SET PROMPT ────────────────────────────────────────────────
@@ -272,16 +274,6 @@ Sertakan detail teknis infrastruktur yang relevan jika diminta. Format output de
   }
 
   function generateDemoContent(prompt) {
-    return `[MODE DEMO — Hubungkan ke Claude AI untuk konten nyata]
-
-SIARAN PERS
-Dinas Pekerjaan Umum dan Perumahan Rakyat
-Provinsi Papua Barat Daya
-
-Berdasarkan permintaan: "${prompt}"
-
-Dinas PUPR Provinsi Papua Barat Daya terus berkomitmen dalam meningkatkan kualitas infrastruktur demi kesejahteraan masyarakat. Program pembangunan yang sedang berjalan mencakup berbagai sektor strategis termasuk jalan, jembatan, irigasi, dan permukiman.
-
 Kepala Dinas PUPR Papua Barat Daya menyampaikan bahwa seluruh proyek infrastruktur dilaksanakan dengan mengutamakan kualitas, transparansi, dan akuntabilitas. Koordinasi lintas sektor terus diperkuat untuk memastikan kelancaran pelaksanaan program.
 
 Informasi lebih lanjut dapat menghubungi Bagian Humas Dinas PUPR Papua Barat Daya:
