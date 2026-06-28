@@ -78,7 +78,10 @@
   </div>
 </nav>
 
-<!-- ══════════════════════════════════════════════════════════
+<!-- SIDEBAR BACKDROP (Mobile) -->
+<div class="sidebar-backdrop" id="sidebar-backdrop" onclick="closeSidebar()"></div>
+
+
      MAIN
 ══════════════════════════════════════════════════════════ -->
 <div class="main">
@@ -86,8 +89,8 @@
   <!-- TOPBAR -->
   <header class="topbar">
     <div class="topbar-left">
-      <button class="topbar-btn hide-desktop" id="menu-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">
-        <i class="ti ti-menu-2"></i>
+      <button class="topbar-btn hide-desktop" id="menu-toggle" onclick="toggleSidebar()">
+        <i class="ti ti-menu-2" id="menu-icon"></i>
       </button>
       <div>
         <div class="page-title" id="topbar-title">Dashboard</div>
@@ -767,7 +770,47 @@
 
     // Auto-init current page
     DashboardPage.init();
+
+    // Auto-close sidebar saat navigasi di mobile
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', () => {
+        if (window.innerWidth <= 768) closeSidebar();
+      });
+    });
   })();
+
+  // ── SIDEBAR MOBILE TOGGLE ─────────────────────────────────────
+  function toggleSidebar() {
+    const sidebar  = document.getElementById('sidebar');
+    const backdrop = document.getElementById('sidebar-backdrop');
+    const icon     = document.getElementById('menu-icon');
+    const isOpen   = sidebar.classList.contains('open');
+
+    if (isOpen) {
+      closeSidebar();
+    } else {
+      sidebar.classList.add('open');
+      backdrop.classList.add('active');
+      document.body.style.overflow = 'hidden'; // cegah scroll background
+      if (icon) icon.className = 'ti ti-x';
+    }
+  }
+
+  function closeSidebar() {
+    const sidebar  = document.getElementById('sidebar');
+    const backdrop = document.getElementById('sidebar-backdrop');
+    const icon     = document.getElementById('menu-icon');
+    sidebar.classList.remove('open');
+    backdrop.classList.remove('active');
+    document.body.style.overflow = '';
+    if (icon) icon.className = 'ti ti-menu-2';
+  }
+
+  // Tutup sidebar jika resize ke desktop
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > 768) closeSidebar();
+  });
+
 
   // ── SAVE SUPABASE CONFIG ──────────────────────────────────────
   function saveSupabaseConfig() {
