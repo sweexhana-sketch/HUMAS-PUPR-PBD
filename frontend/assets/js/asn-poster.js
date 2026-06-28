@@ -21,6 +21,7 @@ const ASNPoster = (() => {
       bg1: '#b91c1c', bg2: '#7f1d1d', accent: '#fca5a5',
       topBar: '#dc2626', bottomBar: '#991b1b',
       ribbon: true, ribbonColor: '#ffffff',
+      prompt: `Dinas PUPR Papua Barat Daya government office building, group of Papuan government employees wearing Indonesian brown khaki civil servant uniform (PNS cokelat) standing together, Indonesian red and white flag, independence day decoration, professional architectural photography, ultra realistic 8k`
     },
     'hari-pahlawan': {
       judul:     `HARI\nPAHLAWAN\nNASIONAL`,
@@ -31,6 +32,7 @@ const ASNPoster = (() => {
       bg1: '#92400e', bg2: '#451a03', accent: '#fcd34d',
       topBar: '#b45309', bottomBar: '#78350f',
       ribbon: false,
+      prompt: `Dinas PUPR Papua Barat Daya office, heroes monument in front, Papuan civil servants in brown government uniform standing respectfully, Indonesian flag half mast, solemn golden hour lighting, professional realistic photography 8k`
     },
     'sumpah-pemuda': {
       judul:     `SELAMAT\nHARI SUMPAH\nPEMUDA`,
@@ -41,6 +43,7 @@ const ASNPoster = (() => {
       bg1: '#1d4ed8', bg2: '#1e3a8a', accent: '#93c5fd',
       topBar: '#2563eb', bottomBar: '#1e40af',
       ribbon: false,
+      prompt: `Youth pledge day, Papuan government employees in brown khaki civil servant uniform, Indonesian flag colors, modern PUPR office building background, unity theme, bright sunny day, professional cinematic photography 8k`
     },
     'hari-pancasila': {
       judul:     `SELAMAT HARI\nLAHIR\nPANCASILA`,
@@ -51,6 +54,7 @@ const ASNPoster = (() => {
       bg1: '#0f766e', bg2: '#042f2e', accent: '#5eead4',
       topBar: '#14b8a6', bottomBar: '#0d9488',
       ribbon: false,
+      prompt: `Pancasila day, Papuan government employees in brown khaki uniform, golden Garuda emblem monument, PUPR Papua Barat Daya office background, diversity theme, sunny clear sky, ultra realistic 8k`
     },
     'hari-kartini': {
       judul:     `SELAMAT\nHARI\nKARTINI`,
@@ -61,6 +65,7 @@ const ASNPoster = (() => {
       bg1: '#be185d', bg2: '#831843', accent: '#fbcfe8',
       topBar: '#ec4899', bottomBar: '#be185d',
       ribbon: false,
+      prompt: `Kartini day, Papuan female government employees in elegant traditional kebaya and brown government uniform, floral decoration, bright sunny office background, empowering women theme, ultra realistic 8k`
     },
     'hari-pendidikan': {
       judul:     `SELAMAT HARI\nPENDIDIKAN\nNASIONAL`,
@@ -71,6 +76,7 @@ const ASNPoster = (() => {
       bg1: '#7c3aed', bg2: '#4c1d95', accent: '#c4b5fd',
       topBar: '#8b5cf6', bottomBar: '#6d28d9',
       ribbon: false,
+      prompt: `National Education Day, Papuan civil servants in brown uniform holding books and blueprints, modern government office background, education and infrastructure theme, bright lighting, realistic photography 8k`
     },
     'hari-buruh': {
       judul:     `SELAMAT\nHARI BURUH\nINTERNASIONAL`,
@@ -81,6 +87,7 @@ const ASNPoster = (() => {
       bg1: '#c2410c', bg2: '#7c2d12', accent: '#fdba74',
       topBar: '#ea580c', bottomBar: '#c2410c',
       ribbon: false,
+      prompt: `May Day, Papuan construction workers and PUPR civil servants in hard hats and safety vests at infrastructure project site, road and bridge construction, morning light, ultra realistic 8k photography`
     },
     'idul-fitri': {
       judul:     `SELAMAT\nHARI RAYA\nIDUL FITRI`,
@@ -91,6 +98,7 @@ const ASNPoster = (() => {
       bg1: '#15803d', bg2: '#052e16', accent: '#86efac',
       topBar: '#16a34a', bottomBar: '#15803d',
       ribbon: false,
+      prompt: `Eid Mubarak, Papuan government employees in brown khaki uniform and muslim traditional wear, shaking hands, mosque and PUPR office background, Islamic geometry decor, festive, realistic 8k`
     },
     'natal': {
       judul:     `SELAMAT\nHARI\nNATAL`,
@@ -101,6 +109,7 @@ const ASNPoster = (() => {
       bg1: '#166534', bg2: '#052e16', accent: '#86efac',
       topBar: '#15803d', bottomBar: '#14532d',
       ribbon: false,
+      prompt: `Christmas day, Papuan civil servants in brown uniform, Christmas tree and festive lights decoration at PUPR office, joyful atmosphere, cinematic evening lighting, ultra realistic 8k photography`
     },
     'tahun-baru': {
       judul:     `SELAMAT\nTAHUN BARU\n${TAHUN}`,
@@ -111,6 +120,7 @@ const ASNPoster = (() => {
       bg1: '#1e3a8a', bg2: '#0f172a', accent: '#fde68a',
       topBar: '#1d4ed8', bottomBar: '#1e40af',
       ribbon: false,
+      prompt: `New Year celebration, fireworks in the sky above PUPR Papua Barat Daya office, Papuan government employees celebrating, festive atmosphere, dramatic night lighting, ultra realistic 8k`
     },
   };
 
@@ -164,32 +174,78 @@ const ASNPoster = (() => {
     const config  = HARI_BESAR[hariId];
 
     const canvas = document.getElementById('asn-poster-canvas');
-    canvas.width  = CANVAS_W;
-    canvas.height = CANVAS_H;
-
-    const ctx = canvas.getContext('2d');
-    drawPoster(ctx, config, nama, jabatan);
-
-    // Tampilkan canvas
-    document.getElementById('asn-canvas-placeholder').style.display = 'none';
-    canvas.style.display = 'block';
-
-    // Tampilkan tombol download
+    const placeholder = document.getElementById('asn-canvas-placeholder');
     const bar = document.getElementById('asn-download-bar');
-    bar.style.display = 'flex';
 
-    Utils.showToast('🎨 Poster berhasil dibuat!', 'success');
+    // Tampilkan state loading
+    canvas.style.display = 'none';
+    bar.style.display = 'none';
+    placeholder.style.display = 'block';
+    placeholder.innerHTML = `
+      <div class="spinner spinner-dark" style="margin:0 auto 12px"></div>
+      <div style="font-weight:700;color:var(--navy);font-size:13px">AI Sedang Membuat Background...</div>
+      <div style="font-size:11px;color:var(--text3);margin-top:4px">Model AI sedang menyusun visual realistis (10-20 detik)</div>
+    `;
+
+    // ── FETCH AI BACKGROUND ──
+    const aiImage = new Image();
+    aiImage.crossOrigin = 'Anonymous'; // Penting agar canvas bisa didownload
+    const aiPrompt = config.prompt + ", no text, no letters, no words, clear space for typography";
+    const encodedPrompt = encodeURIComponent(aiPrompt);
+    // Kita gunakan model "openai" (dalle-3 via pollinations) untuk hasil lebih realistis seperti contoh
+    const aiUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=${CANVAS_W}&height=${CANVAS_H}&nologo=true&seed=${Math.floor(Math.random()*9999)}&model=openai`;
+
+    aiImage.onload = () => {
+      canvas.width  = CANVAS_W;
+      canvas.height = CANVAS_H;
+      const ctx = canvas.getContext('2d');
+      drawPoster(ctx, config, nama, jabatan, aiImage);
+
+      placeholder.style.display = 'none';
+      canvas.style.display = 'block';
+      bar.style.display = 'flex';
+      
+      // Reset placeholder konten
+      placeholder.innerHTML = `
+        <div style="font-size:48px;margin-bottom:8px">🖼️</div>
+        <div style="font-size:12px">Poster akan muncul di sini setelah generate</div>
+      `;
+
+      Utils.showToast('🎨 Poster realistis berhasil dibuat!', 'success');
+    };
+
+    aiImage.onerror = () => {
+      placeholder.innerHTML = `
+        <div style="font-size:36px;margin-bottom:8px">⚠️</div>
+        <div style="font-size:12px;color:var(--red);font-weight:600">Gagal memuat AI Background</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:4px">Server AI sedang sibuk. Silakan coba lagi.</div>
+      `;
+    };
+
+    aiImage.src = aiUrl;
   }
 
   // ── DRAW POSTER ────────────────────────────────────────────────
-  function drawPoster(ctx, cfg, nama, jabatan) {
+  function drawPoster(ctx, cfg, nama, jabatan, aiImage) {
     const W = CANVAS_W, H = CANVAS_H;
 
-    // 1. Background Gradient
-    const bgGrad = ctx.createLinearGradient(0, 0, W * 0.55, H);
-    bgGrad.addColorStop(0, cfg.bg1);
-    bgGrad.addColorStop(1, cfg.bg2);
-    ctx.fillStyle = bgGrad;
+    // 1. Background Image dari AI
+    if (aiImage) {
+      ctx.drawImage(aiImage, 0, 0, W, H);
+    } else {
+      const bgGrad = ctx.createLinearGradient(0, 0, W * 0.55, H);
+      bgGrad.addColorStop(0, cfg.bg1);
+      bgGrad.addColorStop(1, cfg.bg2);
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, 0, W, H);
+    }
+
+    // Overlay gelap di kiri agar teks terbaca jelas (karena background AI bisa terlalu terang)
+    const textOverlay = ctx.createLinearGradient(0, 0, W * 0.8, 0);
+    textOverlay.addColorStop(0, 'rgba(0,0,0,0.8)');
+    textOverlay.addColorStop(0.5, 'rgba(0,0,0,0.4)');
+    textOverlay.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = textOverlay;
     ctx.fillRect(0, 0, W, H);
 
     // 2. Right panel — abu-abu gelap untuk foto
