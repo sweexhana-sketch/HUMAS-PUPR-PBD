@@ -14,7 +14,9 @@ if (!document.getElementById('asn-fonts')) {
 }
 
 const ASNPoster = (() => {
-  let uploadedImage = null;  // HTMLImageElement dari foto ASN
+  let uploadedImage = null;  // HTMLImageElement dari foto ASN (setelah dihapus background)
+  let uploadedFile = null;   // File asli yang diupload
+  let isGenerating = false;
   const TAHUN = new Date().getFullYear();
   const CANVAS_W = 1200;
   const CANVAS_H = 630;
@@ -156,6 +158,7 @@ const ASNPoster = (() => {
     reader.onload = (ev) => {
       const img = new Image();
       img.onload = () => {
+        uploadedFile = file;
         uploadedImage = img;
         // tampilkan preview
         document.getElementById('asn-preview-img').src = ev.target.result;
@@ -179,20 +182,21 @@ const ASNPoster = (() => {
   }
 
   // ── MAIN GENERATE ──────────────────────────────────────────────
-  function generate() {
-    if (!uploadedImage) {
+  async function generate() {
+    if (!uploadedFile) {
       Utils.showToast('Upload foto ASN/Pejabat terlebih dahulu!', 'error');
       document.getElementById('asn-upload-area').style.borderColor = 'var(--red)';
       setTimeout(() => document.getElementById('asn-upload-area').style.borderColor = 'var(--gray2)', 2000);
       return;
     }
+    if (isGenerating) return;
 
+    isGenerating = true;
     const hariId  = document.getElementById('asn-hari-besar').value;
     const nama    = document.getElementById('asn-nama').value.trim()    || 'Nama ASN / Pejabat';
     const jabatan = document.getElementById('asn-jabatan').value.trim() || 'Jabatan — Dinas PUPR Papua Barat Daya';
     const config  = HARI_BESAR[hariId];
     
-    // Ambil Model dan Custom Prompt
     const aiModelEl = document.getElementById('asn-ai-model');
     const aiModel = aiModelEl ? aiModelEl.value : 'openai';
     const customPromptEl = document.getElementById('asn-custom-prompt');
@@ -202,14 +206,42 @@ const ASNPoster = (() => {
     const placeholder = document.getElementById('asn-canvas-placeholder');
     const bar = document.getElementById('asn-download-bar');
 
-    // Tampilkan state loading
     canvas.style.display = 'none';
     bar.style.display = 'none';
     placeholder.style.display = 'block';
+    
+    // 1. HAPUS BACKGROUND OTOOMATIS
     placeholder.innerHTML = `
       <div class="spinner spinner-dark" style="margin:0 auto 12px"></div>
-      <div style="font-weight:700;color:var(--navy);font-size:13px">AI Sedang Membuat Background...</div>
-      <div style="font-size:11px;color:var(--text3);margin-top:4px">Model AI sedang menyusun visual realistis (10-20 detik)</div>
+      <div style="font-weight:700;color:var(--navy);font-size:13px">Langkah 1: Memisahkan Objek...</div>
+      <div style="font-size:11px;color:var(--text3);margin-top:4px">AI sedang memotong foto Pejabat (Bisa memakan waktu 5-15 detik)</div>
+    `;
+
+    try {
+      const imglyRemoveBackground = (await import('https://unpkg.com/@imgly/background-removal@1.4.5/dist/browser/bundle.mjs')).default;
+      const blob = await imglyRemoveBackground(uploadedFile, {
+        publicPath: 'https://unpkg.com/@imgly/background-removal@1.4.5/dist/browser/models/'
+      });
+      const url = URL.createObjectURL(blob);
+      const transImg = new Image();
+      
+      transImg.onload = () => {
+        uploadedImage = transImg;
+        fetchAIBackground(config, customPrompt, aiModel, nama, jabatan, canvas, placeholder, bar);
+      };
+      transImg.src = url;
+    } catch (e) {
+      console.error('Bg removal error:', e);
+      // Fallback ke foto asli
+      fetchAIBackground(config, customPrompt, aiModel, nama, jabatan, canvas, placeholder, bar);
+    }
+  }
+
+  function fetchAIBackground(config, customPrompt, aiModel, nama, jabatan, canvas, placeholder, bar) {
+    placeholder.innerHTML = `
+      <div class="spinner spinner-dark" style="margin:0 auto 12px"></div>
+      <div style="font-weight:700;color:var(--navy);font-size:13px">Langkah 2: Menyatukan Poster...</div>
+      <div style="font-size:11px;color:var(--text3);margin-top:4px">AI Visual sedang menggambar background futuristik (10-20 detik)</div>
     `;
 
     // ── FETCH AI BACKGROUND ──
@@ -238,10 +270,12 @@ const ASNPoster = (() => {
         <div style="font-size:12px">Poster akan muncul di sini setelah generate</div>
       `;
 
+      isGenerating = false;
       Utils.showToast('🎨 Poster realistis berhasil dibuat!', 'success');
     };
 
     aiImage.onerror = () => {
+      isGenerating = false;
       placeholder.innerHTML = `
         <div style="font-size:36px;margin-bottom:8px">⚠️</div>
         <div style="font-size:12px;color:var(--red);font-weight:600">Gagal memuat AI Background</div>
@@ -429,42 +463,39 @@ const ASNPoster = (() => {
 
       // 8. FOTO ASN (Kanan Bawah)
       if (uploadedImage) {
-        const photoW = 340;
-        const photoH = 340;
-        const photoX = W - photoW - 40;
-        const photoY = H - photoH - 65; // atas footer
+        const photoW = Math.min(400, uploadedImage.width);
+        const ratio = photoW / uploadedImage.width;
+        const photoH = uploadedImage.height * ratio;
+        
+        // Posisikan di kanan, menempel ke footer
+        const photoX = W - photoW - 30;
+        const photoY = Math.max(H - photoH - 65, 100); 
 
-        ctx.save();
-        // Mask lingkaran pinggiran soft, atau membulat
-        drawRoundRect(ctx, photoX, photoY, photoW, photoH, 20);
-        ctx.clip();
-        drawPhoto(ctx, uploadedImage, photoX, photoY, photoW, photoH);
-        ctx.restore();
+        // Gambar foto transparan langsung (tanpa kotak border)
+        ctx.drawImage(uploadedImage, photoX, photoY, photoW, photoH);
 
-        // Glow Border
-        ctx.strokeStyle = 'rgba(255,255,255,0.8)';
-        ctx.lineWidth = 6;
-        drawRoundRect(ctx, photoX, photoY, photoW, photoH, 20);
-        ctx.stroke();
-
-        // Gradient kotak nama
-        const nameGrad = ctx.createLinearGradient(0, photoY + photoH - 70, 0, photoY + photoH);
+        // Gradient gelap kecil di bawah foto untuk tempat teks nama agar kontras
+        const nameGrad = ctx.createLinearGradient(0, H - 150, 0, H - 65);
         nameGrad.addColorStop(0, 'rgba(0,0,0,0)');
-        nameGrad.addColorStop(1, 'rgba(0,0,0,0.9)');
+        nameGrad.addColorStop(1, 'rgba(0,0,0,0.85)');
         
         ctx.fillStyle = nameGrad;
-        ctx.fillRect(photoX, photoY + photoH - 70, photoW, 70);
+        ctx.fillRect(photoX - 20, H - 150, photoW + 40, 85);
 
         // Teks Nama
         ctx.fillStyle = '#ffffff';
-        ctx.font = '800 18px "Montserrat", sans-serif';
+        ctx.font = '800 20px "Montserrat", sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText(nama, photoX + photoW/2, photoY + photoH - 26);
+        // Shadow halus untuk teks
+        ctx.shadowColor = 'rgba(0,0,0,0.5)';
+        ctx.shadowBlur = 4;
+        ctx.fillText(nama, photoX + photoW/2, H - 105);
         
         // Teks Jabatan
         ctx.fillStyle = cfg.accent;
-        ctx.font = '600 12px "Montserrat", sans-serif';
-        ctx.fillText(jabatan, photoX + photoW/2, photoY + photoH - 10);
+        ctx.font = '600 13px "Montserrat", sans-serif';
+        ctx.fillText(jabatan, photoX + photoW/2, H - 85);
+        ctx.shadowColor = 'transparent';
       }
 
     });
