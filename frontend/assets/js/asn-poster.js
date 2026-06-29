@@ -213,9 +213,11 @@ const ASNPoster = (() => {
     `;
 
     try {
-      const imglyRemoveBackground = (await import('https://unpkg.com/@imgly/background-removal@1.4.5/dist/browser/bundle.mjs')).default;
+      if (typeof imglyRemoveBackground === 'undefined') {
+        throw new Error('imglyRemoveBackground is not loaded');
+      }
+      
       const blob = await imglyRemoveBackground(uploadedFile, {
-        publicPath: 'https://unpkg.com/@imgly/background-removal@1.4.5/dist/browser/models/',
         output: { format: 'image/png' }
       });
       const url = URL.createObjectURL(blob);
