@@ -18,8 +18,8 @@ const ASNPoster = (() => {
   let uploadedFile = null;   // File asli yang diupload
   let isGenerating = false;
   const TAHUN = new Date().getFullYear();
-  const CANVAS_W = 1200;
-  const CANVAS_H = 630;
+  const CANVAS_W = 1080;
+  const CANVAS_H = 1350;
 
   // ── KONFIGURASI HARI BESAR ─────────────────────────────────────
   const HARI_BESAR = {
@@ -197,11 +197,6 @@ const ASNPoster = (() => {
     const jabatan = document.getElementById('asn-jabatan').value.trim() || 'Jabatan — Dinas PUPR Papua Barat Daya';
     const config  = HARI_BESAR[hariId];
     
-    const aiModelEl = document.getElementById('asn-ai-model');
-    const aiModel = aiModelEl ? aiModelEl.value : 'openai';
-    const customPromptEl = document.getElementById('asn-custom-prompt');
-    const customPrompt = customPromptEl && customPromptEl.value.trim() ? customPromptEl.value.trim() : config.prompt;
-
     const canvas = document.getElementById('asn-poster-canvas');
     const placeholder = document.getElementById('asn-canvas-placeholder');
     const bar = document.getElementById('asn-download-bar');
@@ -210,55 +205,48 @@ const ASNPoster = (() => {
     bar.style.display = 'none';
     placeholder.style.display = 'block';
     
-    // 1. HAPUS BACKGROUND OTOOMATIS
+    // 1. HAPUS BACKGROUND OTOMATIS
     placeholder.innerHTML = `
       <div class="spinner spinner-dark" style="margin:0 auto 12px"></div>
-      <div style="font-weight:700;color:var(--navy);font-size:13px">Langkah 1: Memisahkan Objek...</div>
+      <div style="font-weight:700;color:var(--navy);font-size:13px">Langkah 1: Memproses Foto & Layout...</div>
       <div style="font-size:11px;color:var(--text3);margin-top:4px">AI sedang memotong foto Pejabat (Bisa memakan waktu 5-15 detik)</div>
     `;
 
     try {
       const imglyRemoveBackground = (await import('https://unpkg.com/@imgly/background-removal@1.4.5/dist/browser/bundle.mjs')).default;
       const blob = await imglyRemoveBackground(uploadedFile, {
-        publicPath: 'https://unpkg.com/@imgly/background-removal@1.4.5/dist/browser/models/'
+        publicPath: 'https://unpkg.com/@imgly/background-removal@1.4.5/dist/browser/models/',
+        output: { format: 'image/png' }
       });
       const url = URL.createObjectURL(blob);
       const transImg = new Image();
       
       transImg.onload = () => {
         uploadedImage = transImg;
-        fetchAIBackground(config, customPrompt, aiModel, nama, jabatan, canvas, placeholder, bar);
+        renderPoster(config, nama, jabatan, canvas, placeholder, bar);
       };
       transImg.src = url;
     } catch (e) {
       console.error('Bg removal error:', e);
       // Fallback ke foto asli
-      fetchAIBackground(config, customPrompt, aiModel, nama, jabatan, canvas, placeholder, bar);
+      renderPoster(config, nama, jabatan, canvas, placeholder, bar);
     }
   }
 
-  function fetchAIBackground(config, customPrompt, aiModel, nama, jabatan, canvas, placeholder, bar) {
+  function renderPoster(config, nama, jabatan, canvas, placeholder, bar) {
     placeholder.innerHTML = `
       <div class="spinner spinner-dark" style="margin:0 auto 12px"></div>
       <div style="font-weight:700;color:var(--navy);font-size:13px">Langkah 2: Menyatukan Poster...</div>
-      <div style="font-size:11px;color:var(--text3);margin-top:4px">AI Visual sedang menggambar background futuristik (10-20 detik)</div>
+      <div style="font-size:11px;color:var(--text3);margin-top:4px">Menyusun elemen grafis...</div>
     `;
 
-    // ── FETCH AI BACKGROUND ──
-    const aiImage = new Image();
-    aiImage.crossOrigin = 'Anonymous'; // Penting agar canvas bisa didownload
+    canvas.width  = CANVAS_W;
+    canvas.height = CANVAS_H;
+    const ctx = canvas.getContext('2d');
     
-    // Gabungkan prompt kustom dari user dengan suffix wajib untuk hasil terbaik
-    const aiPrompt = customPrompt + ", no text, no letters, no words, clear space for typography";
-    const encodedPrompt = encodeURIComponent(aiPrompt);
-    
-    const aiUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=${CANVAS_W}&height=${CANVAS_H}&nologo=true&seed=${Math.floor(Math.random()*9999)}&model=${aiModel}`;
-
-    aiImage.onload = () => {
-      canvas.width  = CANVAS_W;
-      canvas.height = CANVAS_H;
-      const ctx = canvas.getContext('2d');
-      drawPoster(ctx, config, nama, jabatan, aiImage);
+    // Tunggu font load sebelum menggambar
+    document.fonts.ready.then(() => {
+      drawPoster(ctx, config, nama, jabatan);
 
       placeholder.style.display = 'none';
       canvas.style.display = 'block';
@@ -271,329 +259,185 @@ const ASNPoster = (() => {
       `;
 
       isGenerating = false;
-      Utils.showToast('🎨 Poster realistis berhasil dibuat!', 'success');
-    };
-
-    aiImage.onerror = () => {
-      isGenerating = false;
-      placeholder.innerHTML = `
-        <div style="font-size:36px;margin-bottom:8px">⚠️</div>
-        <div style="font-size:12px;color:var(--red);font-weight:600">Gagal memuat AI Background</div>
-        <div style="font-size:11px;color:var(--text3);margin-top:4px">Server AI sedang sibuk. Silakan coba lagi.</div>
-      `;
-    };
-
-    aiImage.src = aiUrl;
-  }
-
-  // ── DRAW POSTER ────────────────────────────────────────────────
-  function drawPoster(ctx, cfg, nama, jabatan, aiImage) {
-    const W = CANVAS_W, H = CANVAS_H;
-
-    // Tunggu font load
-    document.fonts.ready.then(() => {
-      // 1. Background Image dari AI
-      if (aiImage) {
-        ctx.drawImage(aiImage, 0, 0, W, H);
-      } else {
-        const bgGrad = ctx.createLinearGradient(0, 0, W * 0.55, H);
-        bgGrad.addColorStop(0, cfg.bg1);
-        bgGrad.addColorStop(1, cfg.bg2);
-        ctx.fillStyle = bgGrad;
-        ctx.fillRect(0, 0, W, H);
-      }
-
-      // 2. TINT KIRI (Fading Putih) agar teks kontras dan bersih seperti referensi
-      const leftTint = ctx.createLinearGradient(0, 0, W * 0.55, 0);
-      leftTint.addColorStop(0, 'rgba(255,255,255,1)');
-      leftTint.addColorStop(0.35, 'rgba(255,255,255,0.85)');
-      leftTint.addColorStop(1, 'rgba(255,255,255,0)');
-      ctx.fillStyle = leftTint;
-      ctx.fillRect(0, 0, W, H);
-
-      // 3. TOP RIBBON (Curved elegant)
-      drawTopRibbon(ctx, W, cfg.bg1);
-
-      // 4. BOTTOM RIBBON (Curved waves)
-      drawBottomRibbon(ctx, W, H, cfg.bg1);
-
-      // 5. FOOTER BAR
-      ctx.fillStyle = cfg.bottomBar;
-      ctx.fillRect(0, H - 65, W, 65);
-
-      // Footer Content
-      // Kiri: QR + Teks
-      drawQRPlaceholder(ctx, 25, H - 55, 45);
-      
-      ctx.font = '700 13px "Montserrat", sans-serif';
-      ctx.fillStyle = '#ffffff';
-      ctx.textAlign = 'left';
-      ctx.fillText('PU Membangun', 80, H - 40);
-      ctx.font = '600 14px "Montserrat", sans-serif';
-      ctx.fillText('Papua Barat Daya', 80, H - 22);
-
-      // Tengah: Ikon Layanan
-      const icons = [
-        { ic: '🏢', tx1: 'Infrastruktur', tx2: 'Berkualitas' },
-        { ic: '🏠', tx1: 'Permukiman', tx2: 'Layak' },
-        { ic: '💧', tx1: 'Air Bersih', tx2: 'untuk Semua' },
-        { ic: '🛣️', tx1: 'Terhubung', tx2: 'untuk Maju' }
-      ];
-      icons.forEach((item, i) => {
-        const x = W * 0.30 + (i * 145);
-        ctx.font = '24px Arial';
-        ctx.fillText(item.ic, x, H - 25);
-        ctx.font = '400 11px "Montserrat", sans-serif';
-        ctx.fillStyle = '#ffffff';
-        ctx.fillText(item.tx1, x + 35, H - 38);
-        ctx.font = '700 11px "Montserrat", sans-serif';
-        ctx.fillText(item.tx2, x + 35, H - 22);
-      });
-
-      // Kanan: Hashtag
-      ctx.font = '900 18px "Montserrat", sans-serif';
-      ctx.fillStyle = 'rgba(255,255,255,0.4)';
-      ctx.textAlign = 'right';
-      const hash1 = cfg.hashtag.split(' ')[0] || '';
-      const hash2 = cfg.hashtag.split(' ')[1] || '';
-      ctx.fillText('#', W - ctx.measureText(hash1.replace('#','')).width - 32, H - 28);
-      ctx.font = '700 13px "Montserrat", sans-serif';
-      ctx.fillStyle = '#ffffff';
-      ctx.fillText(hash1.replace('#',''), W - 25, H - 36);
-      ctx.fillText(hash2.replace('#',''), W - 25, H - 20);
-
-      // 6. TOP BAR & LOGOS
-      ctx.fillStyle = '#ffffff';
-      ctx.beginPath();
-      ctx.arc(45, 45, 28, 0, Math.PI * 2); // Logo bulat
-      ctx.fill();
-      ctx.font = '900 18px "Montserrat", sans-serif';
-      ctx.fillStyle = cfg.bg1;
-      ctx.textAlign = 'center';
-      ctx.fillText('PU', 45, 52);
-
-      ctx.textAlign = 'left';
-      ctx.fillStyle = '#111827';
-      ctx.font = '800 12px "Montserrat", sans-serif';
-      ctx.fillText('DINAS PEKERJAAN UMUM', 85, 36);
-      ctx.fillText('DAN PERUMAHAN RAKYAT', 85, 52);
-      ctx.font = '600 11px "Montserrat", sans-serif';
-      ctx.fillText('PROVINSI PAPUA BARAT DAYA', 85, 68);
-
-      // Kanan Atas Logo
-      ctx.textAlign = 'right';
-      ctx.fillStyle = '#111827';
-      ctx.font = '600 14px "Montserrat", sans-serif';
-      ctx.fillText('Bersatu Berdaulat', W - 120, 42);
-      ctx.fillText('Rakyat Sejahtera', W - 120, 60);
-      ctx.fillText('Indonesia Maju', W - 120, 78);
-
-      // Big Number / Tag di Kanan Atas
-      const numMatch = cfg.tag.match(/\d+/);
-      if (numMatch) {
-        ctx.font = '900 65px "Montserrat", sans-serif';
-        ctx.fillStyle = 'transparent';
-        ctx.strokeStyle = cfg.bg1;
-        ctx.lineWidth = 2;
-        ctx.strokeText(numMatch[0], W - 30, 75);
-      }
-
-      // 7. TYPOGRAPHY (Kiri)
-      const lines = cfg.judul.split('\n');
-      
-      // Line 1: Cursive
-      if (lines[0]) {
-        ctx.font = 'normal 75px "Great Vibes", cursive';
-        ctx.fillStyle = '#111827';
-        ctx.textAlign = 'left';
-        ctx.fillText(lines[0], 40, 195);
-      }
-
-      // Line 2: Black Bold
-      if (lines[1]) {
-        ctx.font = '900 95px "Montserrat", sans-serif';
-        ctx.fillStyle = '#111827';
-        ctx.shadowColor = 'rgba(0,0,0,0.1)';
-        ctx.shadowBlur = 4;
-        ctx.fillText(lines[1], 36, 280);
-        ctx.shadowColor = 'transparent';
-      }
-
-      // Line 3: Red Bold
-      if (lines[2]) {
-        ctx.font = '900 95px "Montserrat", sans-serif';
-        ctx.fillStyle = cfg.bg1;
-        ctx.shadowColor = 'rgba(0,0,0,0.1)';
-        ctx.shadowBlur = 4;
-        ctx.fillText(lines[2], 36, 370);
-        ctx.shadowColor = 'transparent';
-      }
-
-      // Date Pill
-      ctx.fillStyle = cfg.bg1;
-      const subW = Math.max(340, ctx.measureText(cfg.sub).width + 30);
-      drawRoundRect(ctx, 40, 400, subW, 32, 8);
-      ctx.fill();
-      ctx.font = '700 14px "Montserrat", sans-serif';
-      ctx.fillStyle = '#ffffff';
-      ctx.textAlign = 'center';
-      ctx.fillText(cfg.sub.toUpperCase(), 40 + subW/2, 421);
-
-      // Tagline Paragraph
-      ctx.font = '500 16px "Montserrat", sans-serif';
-      ctx.fillStyle = '#1f2937';
-      ctx.textAlign = 'left';
-      let tagY = 460;
-      cfg.tagline.split('\n').forEach(line => {
-        ctx.fillText(line, 40, tagY);
-        tagY += 24;
-      });
-
-      // Big Logo Bottom Left
-      if (numMatch) {
-        ctx.font = '900 110px "Montserrat", sans-serif';
-        ctx.fillStyle = 'transparent';
-        ctx.strokeStyle = cfg.bg1;
-        ctx.lineWidth = 3;
-        ctx.strokeText(numMatch[0], 40, 600);
-        ctx.font = '900 30px "Montserrat", sans-serif';
-        ctx.fillStyle = cfg.bg1;
-        ctx.fillText('TH', 40 + ctx.measureText(numMatch[0]).width + 10, 520);
-      }
-
-      // 8. FOTO ASN (Kanan Bawah)
-      if (uploadedImage) {
-        const photoW = Math.min(400, uploadedImage.width);
-        const ratio = photoW / uploadedImage.width;
-        const photoH = uploadedImage.height * ratio;
-        
-        // Posisikan di kanan, menempel ke footer
-        const photoX = W - photoW - 30;
-        const photoY = Math.max(H - photoH - 65, 100); 
-
-        // Gambar foto transparan langsung (tanpa kotak border)
-        ctx.drawImage(uploadedImage, photoX, photoY, photoW, photoH);
-
-        // Gradient gelap kecil di bawah foto untuk tempat teks nama agar kontras
-        const nameGrad = ctx.createLinearGradient(0, H - 150, 0, H - 65);
-        nameGrad.addColorStop(0, 'rgba(0,0,0,0)');
-        nameGrad.addColorStop(1, 'rgba(0,0,0,0.85)');
-        
-        ctx.fillStyle = nameGrad;
-        ctx.fillRect(photoX - 20, H - 150, photoW + 40, 85);
-
-        // Teks Nama
-        ctx.fillStyle = '#ffffff';
-        ctx.font = '800 20px "Montserrat", sans-serif';
-        ctx.textAlign = 'center';
-        // Shadow halus untuk teks
-        ctx.shadowColor = 'rgba(0,0,0,0.5)';
-        ctx.shadowBlur = 4;
-        ctx.fillText(nama, photoX + photoW/2, H - 105);
-        
-        // Teks Jabatan
-        ctx.fillStyle = cfg.accent;
-        ctx.font = '600 13px "Montserrat", sans-serif';
-        ctx.fillText(jabatan, photoX + photoW/2, H - 85);
-        ctx.shadowColor = 'transparent';
-      }
-
+      Utils.showToast('🎨 Poster berhasil dibuat!', 'success');
     });
   }
 
-  // ── HELPER: Draw Top Ribbon ──────────────────────────────────
-  function drawTopRibbon(ctx, W, color) {
+  // ── DRAW POSTER ────────────────────────────────────────────────
+  function drawPoster(ctx, cfg, nama, jabatan) {
+    const W = CANVAS_W, H = CANVAS_H;
+    const primaryColor = cfg.bg1 || '#cc0000';
+    const darkColor = cfg.bg2 || '#7f1d1d';
+
+    // 1. Background Image dari AI (Tidak Dipakai, Pakai Desain Vector)
+    ctx.fillStyle = '#f8f9fa';
+    ctx.fillRect(0, 0, W, H);
+    
+    // Abstract faint background gradient
+    const bgGrad = ctx.createRadialGradient(W/2, H/2, 100, W/2, H/2, W);
+    bgGrad.addColorStop(0, '#ffffff');
+    bgGrad.addColorStop(1, '#e5e7eb');
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, W, H);
+
+    // 2. Top Right Wavy Ribbon (Red & White)
+    ctx.beginPath();
+    ctx.moveTo(W * 0.4, 0);
+    ctx.bezierCurveTo(W * 0.7, 50, W * 0.8, 200, W, 250);
+    ctx.lineTo(W, 0);
+    ctx.closePath();
+    ctx.fillStyle = primaryColor;
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(W * 0.55, 0);
+    ctx.bezierCurveTo(W * 0.8, 30, W * 0.9, 150, W, 180);
+    ctx.lineTo(W, 0);
+    ctx.closePath();
+    ctx.fillStyle = '#ffffff';
     ctx.shadowColor = 'rgba(0,0,0,0.1)';
     ctx.shadowBlur = 15;
-    ctx.shadowOffsetY = 4;
-
-    // Belakang (Merah)
-    ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.lineTo(W, 0);
-    ctx.lineTo(W, 140);
-    ctx.bezierCurveTo(W*0.6, 140, W*0.3, 50, 0, 70);
-    ctx.closePath();
-    ctx.fillStyle = color;
-    ctx.fill();
-
-    // Depan (Putih)
-    ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.lineTo(W, 0);
-    ctx.lineTo(W, 110);
-    ctx.bezierCurveTo(W*0.5, 110, W*0.25, 30, 0, 45);
-    ctx.closePath();
-    ctx.fillStyle = '#ffffff';
     ctx.fill();
     ctx.shadowColor = 'transparent';
-  }
 
-  // ── HELPER: Draw Bottom Ribbon ───────────────────────────────
-  function drawBottomRibbon(ctx, W, H, color) {
-    ctx.shadowColor = 'rgba(0,0,0,0.15)';
-    ctx.shadowBlur = 20;
+    // 3. Bottom Wavy Design
+    ctx.beginPath();
+    ctx.moveTo(0, H * 0.65);
+    ctx.bezierCurveTo(W * 0.3, H * 0.55, W * 0.7, H * 0.8, W, H * 0.65);
+    ctx.lineTo(W, H);
+    ctx.lineTo(0, H);
+    ctx.closePath();
+    ctx.fillStyle = darkColor;
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(0, H * 0.75);
+    ctx.bezierCurveTo(W * 0.4, H * 0.65, W * 0.6, H * 0.9, W, H * 0.75);
+    ctx.lineTo(W, H);
+    ctx.lineTo(0, H);
+    ctx.closePath();
+    ctx.fillStyle = primaryColor;
+    ctx.shadowColor = 'rgba(0,0,0,0.2)';
+    ctx.shadowBlur = 10;
     ctx.shadowOffsetY = -5;
-
-    // Belakang (Putih)
-    ctx.beginPath();
-    ctx.moveTo(0, H);
-    ctx.lineTo(W, H);
-    ctx.lineTo(W, H - 180);
-    ctx.bezierCurveTo(W*0.6, H - 240, W*0.4, H - 60, 0, H - 130);
-    ctx.closePath();
-    ctx.fillStyle = '#ffffff';
-    ctx.fill();
-
-    // Depan (Merah)
-    ctx.beginPath();
-    ctx.moveTo(0, H);
-    ctx.lineTo(W, H);
-    ctx.lineTo(W, H - 120);
-    ctx.bezierCurveTo(W*0.7, H - 220, W*0.2, H - 80, 0, H - 90);
-    ctx.closePath();
-    
-    const grad = ctx.createLinearGradient(0, H-200, W, H);
-    grad.addColorStop(0, color);
-    grad.addColorStop(1, '#7f1d1d');
-    ctx.fillStyle = grad;
     ctx.fill();
     ctx.shadowColor = 'transparent';
-  }
 
-  // ── HELPER: Draw QR Code Placeholder ─────────────────────────
-  function drawQRPlaceholder(ctx, x, y, size) {
+    // 4. Draw Logos
+    const logoY = 60;
+    // PU Logo (Draw circle for now, or use image)
     ctx.fillStyle = '#ffffff';
-    ctx.fillRect(x, y, size, size);
+    ctx.beginPath();
+    ctx.arc(170, logoY+10, 35, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.font = '900 24px "Montserrat", sans-serif';
+    ctx.fillStyle = '#1e3a8a';
+    ctx.textAlign = 'center';
+    ctx.fillText('PU', 170, logoY+20);
+
+    // PBD Logo Placeholder (circle)
+    ctx.fillStyle = '#10b981';
+    ctx.beginPath();
+    ctx.arc(85, logoY+10, 35, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 12px "Montserrat", sans-serif';
+    ctx.fillText('PBD', 85, logoY+14);
+
+    ctx.textAlign = 'left';
     ctx.fillStyle = '#000000';
-    ctx.fillRect(x+4, y+4, 10, 10);
-    ctx.fillRect(x+size-14, y+4, 10, 10);
-    ctx.fillRect(x+4, y+size-14, 10, 10);
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(x+6, y+6, 6, 6);
-    ctx.fillRect(x+size-12, y+6, 6, 6);
-    ctx.fillRect(x+6, y+size-12, 6, 6);
-  }
+    ctx.font = '800 16px "Montserrat", sans-serif';
+    ctx.fillText('DINAS PEKERJAAN UMUM', 220, logoY);
+    ctx.fillText('DAN PERUMAHAN RAKYAT', 220, logoY+20);
+    ctx.font = '600 15px "Montserrat", sans-serif';
+    ctx.fillText('PROVINSI PAPUA BARAT DAYA', 220, logoY+40);
 
-  // ── HELPER: Draw photo cropped to area ────────────────────────
+    // 5. Text / Typography (Right side)
+    const lines = cfg.judul.split('\n');
+    let title1 = lines[0] || 'Dirgahayu';
+    let title2 = lines[1] || 'REPUBLIK';
+    let title3 = lines[2] || 'INDONESIA';
 
-  function drawPhoto(ctx, img, x, y, w, h) {
-    // Crop foto tetap dalam area tanpa distorsi
-    const imgAr = img.width / img.height;
-    const areaAr = w / h;
-    let sx, sy, sw, sh;
-    if (imgAr > areaAr) {
-      sh = img.height;
-      sw = sh * areaAr;
-      sx = (img.width - sw) / 2;
-      sy = 0;
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#000000';
+    ctx.font = 'normal 90px "Great Vibes", cursive';
+    ctx.fillText(title1, W - 60, 230);
+    
+    ctx.font = '900 80px "Montserrat", sans-serif';
+    ctx.fillStyle = primaryColor;
+    ctx.fillText(title2, W - 60, 320);
+    ctx.fillText(title3, W - 60, 400);
+    
+    // Tag Number (e.g. 81 TH)
+    const numMatch = cfg.tag.match(/\d+/);
+    const tagNum = numMatch ? numMatch[0] : '81';
+    
+    ctx.font = '900 280px "Montserrat", sans-serif';
+    ctx.fillStyle = 'transparent';
+    ctx.strokeStyle = primaryColor;
+    ctx.lineWidth = 18;
+    ctx.strokeText(tagNum, W - 180, 680);
+    ctx.lineWidth = 6;
+    ctx.strokeStyle = '#ffffff';
+    ctx.strokeText(tagNum, W - 180, 680);
+    
+    ctx.font = '900 60px "Montserrat", sans-serif';
+    ctx.fillStyle = primaryColor;
+    ctx.fillText('TH', W - 60, 480);
+
+    // Tagline / Slogan
+    ctx.fillStyle = '#000000';
+    ctx.font = '800 24px "Montserrat", sans-serif';
+    
+    // Parse taglines
+    const taglines = cfg.tagline.split('\n');
+    // If it's HUT RI we override with specific slogan to match screenshot
+    if (cfg.bg1 === '#b91c1c') { // Just a heuristic
+      ctx.fillText('BERSATU BERDAULAT', W - 60, 780);
+      ctx.fillText('RAKYAT SEJAHTERA', W - 60, 815);
+      ctx.fillText('INDONESIA MAJU', W - 60, 850);
     } else {
-      sw = img.width;
-      sh = sw / areaAr;
-      sx = 0;
-      sy = Math.max(0, (img.height - sh) * 0.15); // fokus wajah (atas)
+      let ty = 780;
+      taglines.forEach(t => {
+        ctx.fillText(t.toUpperCase(), W - 60, ty);
+        ty += 35;
+      });
     }
-    ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
+    
+    // Date Pill
+    ctx.fillStyle = primaryColor;
+    const dateText = cfg.sub;
+    const dateW = Math.max(450, ctx.measureText(dateText).width + 60);
+    drawRoundRect(ctx, W - 60 - dateW, 880, dateW, 40, 20);
+    ctx.fill();
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '700 18px "Montserrat", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(dateText.toUpperCase(), W - 60 - dateW/2, 907);
+
+    // 6. Draw Photo ASN (Left Side, Bottom aligned)
+    if (uploadedImage) {
+      const photoW = W * 0.7; // Large photo
+      const ratio = photoW / uploadedImage.width;
+      const photoH = uploadedImage.height * ratio;
+      
+      const photoX = -50;
+      const photoY = H - photoH + 100; 
+      
+      ctx.drawImage(uploadedImage, photoX, photoY, photoW, photoH);
+    }
+
+    // 7. Footer Text (Name and Title)
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '900 45px "Montserrat", sans-serif';
+    ctx.fillText(nama.toUpperCase(), 60, H - 150);
+    
+    ctx.font = '700 22px "Montserrat", sans-serif';
+    ctx.fillText(jabatan.toUpperCase(), 60, H - 100);
+    ctx.font = '500 18px "Montserrat", sans-serif';
+    ctx.fillText('DINAS PEKERJAAN UMUM DAN PERUMAHAN RAKYAT', 60, H - 70);
+    ctx.fillText('PROVINSI PAPUA BARAT DAYA', 60, H - 45);
   }
 
   // ── HELPER: Rounded Rectangle ─────────────────────────────────
