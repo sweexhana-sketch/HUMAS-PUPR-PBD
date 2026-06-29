@@ -188,13 +188,17 @@ const ASNPoster = (() => {
     // Coba hapus background
     try {
       if (typeof imglyRemoveBackground === 'undefined') throw new Error('imgly not loaded');
-      const blob    = await imglyRemoveBackground(uploadedFile, { output: { format: 'image/png' } });
+      const blob = await imglyRemoveBackground(uploadedFile, { 
+        publicPath: "https://unpkg.com/@imgly/background-removal@1.4.5/dist/",
+        output: { format: 'image/png' } 
+      });
       const blobUrl = URL.createObjectURL(blob);
       const cutImg  = new Image();
       cutImg.onload = () => { uploadedImage = cutImg; renderCanvas(config, nama, jabatan, canvas, placeholder, bar); };
       cutImg.src = blobUrl;
     } catch (e) {
       console.warn('Background removal skipped:', e.message);
+      // Fallback: jika gagal hapus bg, gunakan foto asli tapi tetap render
       renderCanvas(config, nama, jabatan, canvas, placeholder, bar);
     }
   }
