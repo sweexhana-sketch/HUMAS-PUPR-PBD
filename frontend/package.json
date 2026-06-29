@@ -1,0 +1,8 @@
+{
+  "name": "sim-humas-frontend",
+  "version": "1.0.0",
+  "description": "Static HTML build for Vercel",
+  "scripts": {
+    "build": "mkdir -p public && cp -r assets components pages index.html public/"
+  }
+}
