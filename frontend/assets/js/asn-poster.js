@@ -246,25 +246,43 @@ const ASNPoster = (() => {
     
     // Tunggu font load sebelum menggambar
     document.fonts.ready.then(() => {
-      drawPoster(ctx, config, nama, jabatan);
+      const pbdLogo = new Image();
+      const puprLogo = new Image();
+      let loaded = 0;
 
-      placeholder.style.display = 'none';
-      canvas.style.display = 'block';
-      bar.style.display = 'flex';
-      
-      // Reset placeholder konten
-      placeholder.innerHTML = `
-        <div style="font-size:48px;margin-bottom:8px">🖼️</div>
-        <div style="font-size:12px">Poster akan muncul di sini setelah generate</div>
-      `;
+      const finishGenerate = () => {
+        loaded++;
+        if (loaded === 2) {
+          drawPoster(ctx, config, nama, jabatan, pbdLogo, puprLogo);
 
-      isGenerating = false;
-      Utils.showToast('🎨 Poster berhasil dibuat!', 'success');
+          placeholder.style.display = 'none';
+          canvas.style.display = 'block';
+          bar.style.display = 'flex';
+          
+          // Reset placeholder konten
+          placeholder.innerHTML = `
+            <div style="font-size:48px;margin-bottom:8px">🖼️</div>
+            <div style="font-size:12px">Poster akan muncul di sini setelah generate</div>
+          `;
+
+          isGenerating = false;
+          Utils.showToast('🎨 Poster berhasil dibuat!', 'success');
+        }
+      };
+
+      pbdLogo.onload = finishGenerate;
+      pbdLogo.onerror = finishGenerate;
+      puprLogo.onload = finishGenerate;
+      puprLogo.onerror = finishGenerate;
+
+      // Set src untuk mulai memuat
+      pbdLogo.src = '../components/Logo_Papua_Barat_Daya.png';
+      puprLogo.src = '../components/Logo_PUPR.png';
     });
   }
 
   // ── DRAW POSTER ────────────────────────────────────────────────
-  function drawPoster(ctx, cfg, nama, jabatan) {
+  function drawPoster(ctx, cfg, nama, jabatan, pbdLogo, puprLogo) {
     const W = CANVAS_W, H = CANVAS_H;
     const primaryColor = cfg.bg1 || '#cc0000';
     const darkColor = cfg.bg2 || '#7f1d1d';
@@ -324,33 +342,32 @@ const ASNPoster = (() => {
     ctx.shadowColor = 'transparent';
 
     // 4. Draw Logos
-    const logoY = 60;
-    // PU Logo (Draw circle for now, or use image)
-    ctx.fillStyle = '#ffffff';
-    ctx.beginPath();
-    ctx.arc(170, logoY+10, 35, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.font = '900 24px "Montserrat", sans-serif';
-    ctx.fillStyle = '#1e3a8a';
-    ctx.textAlign = 'center';
-    ctx.fillText('PU', 170, logoY+20);
+    const logoY = 40;
+    let nextX = 50;
+    
+    // Draw PBD Logo
+    if (pbdLogo && pbdLogo.complete && pbdLogo.naturalHeight !== 0) {
+      const h = 75;
+      const w = pbdLogo.width * (h / pbdLogo.height);
+      ctx.drawImage(pbdLogo, nextX, logoY, w, h);
+      nextX += w + 20;
+    }
 
-    // PBD Logo Placeholder (circle)
-    ctx.fillStyle = '#10b981';
-    ctx.beginPath();
-    ctx.arc(85, logoY+10, 35, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 12px "Montserrat", sans-serif';
-    ctx.fillText('PBD', 85, logoY+14);
+    // Draw PUPR Logo
+    if (puprLogo && puprLogo.complete && puprLogo.naturalHeight !== 0) {
+      const h = 75;
+      const w = puprLogo.width * (h / puprLogo.height);
+      ctx.drawImage(puprLogo, nextX, logoY, w, h);
+      nextX += w + 20;
+    }
 
     ctx.textAlign = 'left';
     ctx.fillStyle = '#000000';
     ctx.font = '800 16px "Montserrat", sans-serif';
-    ctx.fillText('DINAS PEKERJAAN UMUM', 220, logoY);
-    ctx.fillText('DAN PERUMAHAN RAKYAT', 220, logoY+20);
+    ctx.fillText('DINAS PEKERJAAN UMUM', nextX, logoY + 25);
+    ctx.fillText('DAN PERUMAHAN RAKYAT', nextX, logoY + 45);
     ctx.font = '600 15px "Montserrat", sans-serif';
-    ctx.fillText('PROVINSI PAPUA BARAT DAYA', 220, logoY+40);
+    ctx.fillText('PROVINSI PAPUA BARAT DAYA', nextX, logoY + 65);
 
     // 5. Text / Typography (Right side)
     const lines = cfg.judul.split('\n');
