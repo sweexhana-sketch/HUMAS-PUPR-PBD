@@ -2,7 +2,6 @@
 
 import { useState, useRef } from "react";
 import { Upload, Image as ImageIcon, Sparkles, Download, Loader2, X } from "lucide-react";
-import axios from "axios";
 
 const EVENTS = [
   "HUT RI",
@@ -39,16 +38,25 @@ export default function Home() {
     setResultImage(null);
 
     try {
-      // Panggil backend FastAPI (sementara baru prompt teks)
-      // Di tahap selanjutnya, logo dan foto bisa dikirim via FormData untuk diproses
-      const response = await axios.post("http://localhost:8000/buat-poster", {
-        acara: `${event} ${year}`,
-        tema: theme,
+      // Panggil Next.js API Route internal (berjalan di Vercel, tidak butuh backend terpisah)
+      const response = await fetch("/api/buat-poster", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          acara: `${event} ${year}`,
+          tema: theme,
+        }),
       });
-      setResultImage(response.data.hasil);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setResultImage(data.hasil);
     } catch (error) {
       console.error(error);
-      alert("Gagal menghasilkan poster. Pastikan backend berjalan.");
+      alert("Gagal menghasilkan poster. Silakan coba lagi.");
     } finally {
       setIsGenerating(false);
     }
