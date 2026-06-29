@@ -1,141 +1,123 @@
 /**
- * asn-poster.js
- * Generator Poster Ucapan Hari Besar dengan Foto ASN/Pejabat
- * Menggunakan HTML Canvas API — SIM-HUMAS PUPR Papua Barat Daya
+ * asn-poster.js  v3.0
+ * Generator Poster Ucapan Hari Besar — desain referensi resmi PUPR PBD
+ * Hasil: poster portrait 1080×1350 px (Instagram/cetak)
+ * SIM-HUMAS PUPR Papua Barat Daya
  */
 
-// Load premium fonts
+// ── LOAD FONTS ──────────────────────────────────────────────────
 if (!document.getElementById('asn-fonts')) {
   const link = document.createElement('link');
-  link.id = 'asn-fonts';
-  link.rel = 'stylesheet';
-  link.href = 'https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,600;0,800;0,900;1,400&family=Great+Vibes&display=swap';
+  link.id   = 'asn-fonts';
+  link.rel  = 'stylesheet';
+  link.href = 'https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,600;0,700;0,800;0,900;1,500&family=Great+Vibes&display=swap';
   document.head.appendChild(link);
 }
 
 const ASNPoster = (() => {
-  let uploadedImage = null;  // HTMLImageElement dari foto ASN (setelah dihapus background)
-  let uploadedFile = null;   // File asli yang diupload
-  let isGenerating = false;
-  const TAHUN = new Date().getFullYear();
+  let uploadedImage = null;   // HTMLImageElement foto ASN (setelah bg-removal)
+  let uploadedFile  = null;   // File asli
+  let isGenerating  = false;
+  const TAHUN   = new Date().getFullYear();
   const CANVAS_W = 1080;
   const CANVAS_H = 1350;
 
-  // ── KONFIGURASI HARI BESAR ─────────────────────────────────────
+  // ── KONFIGURASI HARI BESAR ────────────────────────────────────
   const HARI_BESAR = {
     'hut-ri': {
-      judul:     `DIRGAHAYU\nREPUBLIK\nINDONESIA`,
-      sub:       `17 Agustus 1945 – 17 Agustus ${TAHUN}`,
-      tag:       `HUT RI ke-${TAHUN - 1945}`,
-      tagline:   'Semangat Kemerdekaan untuk Mewujudkan\nPembangunan Infrastruktur yang Merata',
-      hashtag:   '#KaryaNyata #UntukPapua',
-      bg1: '#b91c1c', bg2: '#7f1d1d', accent: '#fca5a5',
-      topBar: '#dc2626', bottomBar: '#991b1b',
-      ribbon: true, ribbonColor: '#ffffff',
-      prompt: `Professional photography of a team of Indonesian government officials wearing tan uniforms, smiling, working in a modern office with futuristic glowing holographic infrastructure blueprints, glowing blue wireframe bridges and city data visualizations overlay, photorealistic, cinematic lighting, high resolution, 8k, independence day theme with red and white subtle accents`
+      scriptText : 'Dirgahayu',
+      line1      : 'REPUBLIK',
+      line2      : 'INDONESIA',
+      numText    : String(TAHUN - 1945),
+      supText    : 'TH',
+      slogan1    : 'BERSATU BERDAULAT',
+      slogan2    : 'RAKYAT SEJAHTERA',
+      slogan3    : 'INDONESIA MAJU',
+      dateText   : `17 AGUSTUS 1945 - 17 AGUSTUS ${TAHUN}`,
+      primary    : '#cc0000',
+      dark       : '#8b0000',
     },
-    'hari-pahlawan': {
-      judul:     `HARI\nPAHLAWAN\nNASIONAL`,
-      sub:       `10 November ${TAHUN}`,
-      tag:       '10 NOVEMBER',
-      tagline:   'Menghormati Jasa Para Pahlawan\ndengan Karya Nyata untuk Rakyat Papua',
-      hashtag:   '#HariPahlawan #BangunPapua',
-      bg1: '#92400e', bg2: '#451a03', accent: '#fcd34d',
-      topBar: '#b45309', bottomBar: '#78350f',
-      ribbon: false,
-      prompt: `Professional photography of a team of Indonesian government officials wearing tan uniforms, standing respectfully in a high-tech modern office, futuristic holographic blueprints of national monuments and city planning glowing in blue, photorealistic, cinematic lighting, high resolution, 8k, heroes day solemn golden hour atmosphere`
+    'hari-bakti-pu': {
+      scriptText : 'Selamat',
+      line1      : 'HARI BAKTI',
+      line2      : 'PU',
+      numText    : String(TAHUN - 1945),
+      supText    : 'TH',
+      slogan1    : 'MEMBANGUN INFRASTRUKTUR',
+      slogan2    : 'UNTUK NEGERI',
+      slogan3    : 'PAPUA BARAT DAYA',
+      dateText   : `3 DESEMBER ${TAHUN}`,
+      primary    : '#f97316',
+      dark       : '#9a3412',
     },
-    'sumpah-pemuda': {
-      judul:     `SELAMAT\nHARI SUMPAH\nPEMUDA`,
-      sub:       `28 Oktober ${TAHUN}`,
-      tag:       '28 OKTOBER',
-      tagline:   'Bersatu dalam Keberagaman\nMembangun Papua Barat Daya yang Maju',
-      hashtag:   '#SumpahPemuda #SatuIndonesia',
-      bg1: '#1d4ed8', bg2: '#1e3a8a', accent: '#93c5fd',
-      topBar: '#2563eb', bottomBar: '#1e40af',
-      ribbon: false,
-      prompt: `Professional photography of a diverse team of young Indonesian government officials in tan uniforms, collaborating energetically around a glowing futuristic holographic smart city map and digital blueprints, photorealistic, cinematic lighting, high resolution, 8k, modern PUPR office, unity theme`
-    },
-    'hari-pancasila': {
-      judul:     `SELAMAT HARI\nLAHIR\nPANCASILA`,
-      sub:       `1 Juni ${TAHUN}`,
-      tag:       '1 JUNI',
-      tagline:   'Pancasila sebagai Landasan\nPembangunan Papua Barat Daya',
-      hashtag:   '#HariPancasila #PapuaMaju',
-      bg1: '#0f766e', bg2: '#042f2e', accent: '#5eead4',
-      topBar: '#14b8a6', bottomBar: '#0d9488',
-      ribbon: false,
-      prompt: `Professional photography of Indonesian government officials in tan uniforms working together in a high-tech control room, massive glowing holographic maps of Indonesia and infrastructure data nodes, photorealistic, cinematic lighting, high resolution, 8k, professional corporate vibe`
-    },
-    'hari-kartini': {
-      judul:     `SELAMAT\nHARI\nKARTINI`,
-      sub:       `21 April ${TAHUN}`,
-      tag:       '21 APRIL',
-      tagline:   'Perempuan Berdaya\nPapua Barat Daya Maju',
-      hashtag:   '#HariKartini #WanitaTangguh',
-      bg1: '#be185d', bg2: '#831843', accent: '#fbcfe8',
-      topBar: '#ec4899', bottomBar: '#be185d',
-      ribbon: false,
-      prompt: `Professional photography of female Indonesian government officials wearing elegant tan uniforms and subtle traditional touches, leading a presentation with glowing futuristic holographic building models and smart city blueprints, modern glass office, photorealistic, cinematic lighting, high resolution, 8k`
-    },
-    'hari-pendidikan': {
-      judul:     `SELAMAT HARI\nPENDIDIKAN\nNASIONAL`,
-      sub:       `2 Mei ${TAHUN}`,
-      tag:       'HARDIKNAS',
-      tagline:   'Pendidikan Berkualitas\nuntuk Papua Barat Daya Berdaya',
-      hashtag:   '#Hardiknas #PendidikanPapua',
-      bg1: '#7c3aed', bg2: '#4c1d95', accent: '#c4b5fd',
-      topBar: '#8b5cf6', bottomBar: '#6d28d9',
-      ribbon: false,
-      prompt: `Professional photography of Indonesian government officials in tan uniforms mentoring students in a futuristic laboratory, surrounded by glowing blue holographic data, digital books, and infrastructure wireframes, photorealistic, cinematic lighting, high resolution, 8k`
-    },
-    'hari-buruh': {
-      judul:     `SELAMAT\nHARI BURUH\nINTERNASIONAL`,
-      sub:       `1 Mei ${TAHUN}`,
-      tag:       'MAY DAY',
-      tagline:   'Menghargai Setiap Kerja Keras\nPembangun Infrastruktur Papua',
-      hashtag:   '#HariBuruh #MayDay',
-      bg1: '#c2410c', bg2: '#7c2d12', accent: '#fdba74',
-      topBar: '#ea580c', bottomBar: '#c2410c',
-      ribbon: false,
-      prompt: `Professional photography of Indonesian government officials in tan uniforms and construction workers with hard hats analyzing a glowing futuristic holographic bridge and heavy machinery blueprints, modern command center, photorealistic, cinematic lighting, high resolution, 8k`
+    'hari-jadi-pbd': {
+      scriptText : 'Selamat',
+      line1      : 'HARI JADI',
+      line2      : 'PAPUA BARAT DAYA',
+      numText    : String(TAHUN - 2022),
+      supText    : 'TH',
+      slogan1    : 'BERSAMA MEMBANGUN',
+      slogan2    : 'PAPUA BARAT DAYA',
+      slogan3    : 'YANG MAJU & SEJAHTERA',
+      dateText   : `25 NOVEMBER ${TAHUN}`,
+      primary    : '#2563eb',
+      dark       : '#1e3a8a',
     },
     'idul-fitri': {
-      judul:     `SELAMAT\nHARI RAYA\nIDUL FITRI`,
-      sub:       `1446 H / ${TAHUN} M`,
-      tag:       'EID MUBARAK',
-      tagline:   'Taqabbalallahu Minna Wa Minkum\nMohon Maaf Lahir dan Batin',
-      hashtag:   '#IdulFitri #EidMubarak',
-      bg1: '#15803d', bg2: '#052e16', accent: '#86efac',
-      topBar: '#16a34a', bottomBar: '#15803d',
-      ribbon: false,
-      prompt: `Professional photography of a team of Indonesian government officials wearing tan uniforms and neat modest attire, smiling in a modern office, subtle glowing holographic data grids, festive warm lighting, photorealistic, cinematic lighting, high resolution, 8k`
+      scriptText : 'Selamat Hari Raya',
+      line1      : 'IDUL',
+      line2      : 'FITRI',
+      numText    : String(TAHUN - 622),
+      supText    : 'H',
+      slogan1    : 'TAQABBALALLAHU MINNA',
+      slogan2    : 'WA MINKUM',
+      slogan3    : 'MOHON MAAF LAHIR & BATIN',
+      dateText   : `1 SYAWAL ${TAHUN - 622} H / ${TAHUN} M`,
+      primary    : '#16a34a',
+      dark       : '#14532d',
     },
     'natal': {
-      judul:     `SELAMAT\nHARI\nNATAL`,
-      sub:       `25 Desember ${TAHUN}`,
-      tag:       'CHRISTMAS',
-      tagline:   'Damai Natal dan Sukacita\nuntuk Seluruh Keluarga Papua',
-      hashtag:   '#HariNatal #MerryChristmas',
-      bg1: '#166534', bg2: '#052e16', accent: '#86efac',
-      topBar: '#15803d', bottomBar: '#14532d',
-      ribbon: false,
-      prompt: `Professional photography of Indonesian government officials wearing tan uniforms in a modern office decorated with subtle festive lights, analyzing glowing futuristic holographic blueprints, warm cinematic lighting, photorealistic, high resolution, 8k`
+      scriptText : 'Selamat',
+      line1      : 'HARI',
+      line2      : 'NATAL',
+      numText    : String(TAHUN),
+      supText    : 'M',
+      slogan1    : 'DAMAI NATAL',
+      slogan2    : 'DAN SUKACITA',
+      slogan3    : 'UNTUK SELURUH KELUARGA',
+      dateText   : `25 DESEMBER ${TAHUN}`,
+      primary    : '#15803d',
+      dark       : '#052e16',
     },
     'tahun-baru': {
-      judul:     `SELAMAT\nTAHUN BARU\n${TAHUN}`,
-      sub:       `1 Januari ${TAHUN}`,
-      tag:       `NEW YEAR ${TAHUN}`,
-      tagline:   'Semangat Baru, Karya Lebih Nyata\nuntuk Papua Barat Daya',
-      hashtag:   `#HappyNewYear${TAHUN} #PapuaMaju`,
-      bg1: '#1e3a8a', bg2: '#0f172a', accent: '#fde68a',
-      topBar: '#1d4ed8', bottomBar: '#1e40af',
-      ribbon: false,
-      prompt: `Professional photography of a team of Indonesian government officials wearing tan uniforms looking forward at a massive glowing futuristic holographic city masterplan and fireworks data visualization, modern high-tech office, photorealistic, cinematic lighting, high resolution, 8k`
+      scriptText : 'Selamat',
+      line1      : 'TAHUN',
+      line2      : 'BARU',
+      numText    : String(TAHUN),
+      supText    : 'M',
+      slogan1    : 'SEMANGAT BARU',
+      slogan2    : 'KARYA LEBIH NYATA',
+      slogan3    : 'UNTUK PAPUA BARAT DAYA',
+      dateText   : `1 JANUARI ${TAHUN}`,
+      primary    : '#1d4ed8',
+      dark       : '#1e3a8a',
+    },
+    'hari-pahlawan': {
+      scriptText : 'Selamat',
+      line1      : 'HARI',
+      line2      : 'PAHLAWAN',
+      numText    : String(TAHUN),
+      supText    : '',
+      slogan1    : 'MENGHARGAI JASA',
+      slogan2    : 'PARA PAHLAWAN BANGSA',
+      slogan3    : 'DENGAN KARYA NYATA',
+      dateText   : `10 NOVEMBER ${TAHUN}`,
+      primary    : '#b45309',
+      dark       : '#78350f',
     },
   };
 
-  // ── HANDLE FILE UPLOAD ─────────────────────────────────────────
+  // ── FILE UPLOAD ────────────────────────────────────────────────
   function handleFileInput(input) {
     if (input.files && input.files[0]) loadFile(input.files[0]);
   }
@@ -143,323 +125,352 @@ const ASNPoster = (() => {
   function handleDrop(e) {
     e.preventDefault();
     const area = document.getElementById('asn-upload-area');
-    area.style.borderColor = 'var(--gray2)';
-    area.style.background  = 'var(--gray1)';
+    if (area) { area.style.borderColor = 'var(--gray2)'; area.style.background = 'var(--gray1)'; }
     const file = e.dataTransfer?.files?.[0];
     if (file && file.type.startsWith('image/')) loadFile(file);
   }
 
   function loadFile(file) {
-    if (file.size > 5 * 1024 * 1024) {
-      Utils.showToast('Ukuran foto melebihi 5MB', 'error');
+    if (file.size > 8 * 1024 * 1024) {
+      if (window.Utils) Utils.showToast('Ukuran foto melebihi 8 MB', 'error');
       return;
     }
     const reader = new FileReader();
     reader.onload = (ev) => {
       const img = new Image();
       img.onload = () => {
-        uploadedFile = file;
+        uploadedFile  = file;
         uploadedImage = img;
-        // tampilkan preview
-        document.getElementById('asn-preview-img').src = ev.target.result;
-        document.getElementById('asn-upload-placeholder').style.display = 'none';
-        document.getElementById('asn-foto-preview').style.display = 'block';
-        Utils.showToast('Foto berhasil diupload! Klik Generate.', 'success');
+        const previewEl = document.getElementById('asn-preview-img');
+        const phEl      = document.getElementById('asn-upload-placeholder');
+        const pvEl      = document.getElementById('asn-foto-preview');
+        if (previewEl) previewEl.src = ev.target.result;
+        if (phEl) phEl.style.display = 'none';
+        if (pvEl) pvEl.style.display = 'block';
+        if (window.Utils) Utils.showToast('Foto berhasil diupload! Klik Generate.', 'success');
       };
       img.src = ev.target.result;
     };
     reader.readAsDataURL(file);
   }
 
-  // ── UPDATE CUSTOM PROMPT ───────────────────────────────────────
-  function updateCustomPrompt() {
-    const hariId = document.getElementById('asn-hari-besar').value;
-    const config = HARI_BESAR[hariId];
-    const promptInput = document.getElementById('asn-custom-prompt');
-    if (config && promptInput) {
-      promptInput.value = config.prompt;
-    }
-  }
-
-  // ── MAIN GENERATE ──────────────────────────────────────────────
+  // ── GENERATE (main entry) ──────────────────────────────────────
   async function generate() {
     if (!uploadedFile) {
-      Utils.showToast('Upload foto ASN/Pejabat terlebih dahulu!', 'error');
-      document.getElementById('asn-upload-area').style.borderColor = 'var(--red)';
-      setTimeout(() => document.getElementById('asn-upload-area').style.borderColor = 'var(--gray2)', 2000);
+      if (window.Utils) Utils.showToast('Upload foto ASN/Pejabat terlebih dahulu!', 'error');
+      const area = document.getElementById('asn-upload-area');
+      if (area) { area.style.borderColor = 'var(--red)'; setTimeout(() => area.style.borderColor = 'var(--gray2)', 2000); }
       return;
     }
     if (isGenerating) return;
-
     isGenerating = true;
-    const hariId  = document.getElementById('asn-hari-besar').value;
-    const nama    = document.getElementById('asn-nama').value.trim()    || 'Nama ASN / Pejabat';
-    const jabatan = document.getElementById('asn-jabatan').value.trim() || 'Jabatan — Dinas PUPR Papua Barat Daya';
-    const config  = HARI_BESAR[hariId];
-    
-    const canvas = document.getElementById('asn-poster-canvas');
+
+    const hariId  = document.getElementById('asn-hari-besar')?.value || 'hut-ri';
+    const nama    = document.getElementById('asn-nama')?.value.trim()    || 'NAMA ASN / PEJABAT';
+    const jabatan = document.getElementById('asn-jabatan')?.value.trim() || 'JABATAN';
+    const config  = HARI_BESAR[hariId] || HARI_BESAR['hut-ri'];
+
+    const canvas      = document.getElementById('asn-poster-canvas');
     const placeholder = document.getElementById('asn-canvas-placeholder');
-    const bar = document.getElementById('asn-download-bar');
+    const bar         = document.getElementById('asn-download-bar');
 
     canvas.style.display = 'none';
-    bar.style.display = 'none';
-    placeholder.style.display = 'block';
-    
-    // 1. HAPUS BACKGROUND OTOMATIS
-    placeholder.innerHTML = `
-      <div class="spinner spinner-dark" style="margin:0 auto 12px"></div>
-      <div style="font-weight:700;color:var(--navy);font-size:13px">Langkah 1: Memproses Foto & Layout...</div>
-      <div style="font-size:11px;color:var(--text3);margin-top:4px">AI sedang memotong foto Pejabat (Bisa memakan waktu 5-15 detik)</div>
-    `;
+    if (bar) bar.style.display = 'none';
+    if (placeholder) {
+      placeholder.style.display = 'flex';
+      placeholder.innerHTML = `
+        <div class="spinner spinner-dark" style="margin:0 auto 12px"></div>
+        <div style="font-weight:700;color:var(--navy);font-size:13px">Langkah 1: Menghapus latar belakang foto...</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:4px">AI memotong foto pejabat (5–20 detik)</div>
+      `;
+    }
 
+    // Coba hapus background
     try {
-      if (typeof imglyRemoveBackground === 'undefined') {
-        throw new Error('imglyRemoveBackground is not loaded');
-      }
-      
-      const blob = await imglyRemoveBackground(uploadedFile, {
-        output: { format: 'image/png' }
-      });
-      const url = URL.createObjectURL(blob);
-      const transImg = new Image();
-      
-      transImg.onload = () => {
-        uploadedImage = transImg;
-        renderPoster(config, nama, jabatan, canvas, placeholder, bar);
-      };
-      transImg.src = url;
+      if (typeof imglyRemoveBackground === 'undefined') throw new Error('imgly not loaded');
+      const blob    = await imglyRemoveBackground(uploadedFile, { output: { format: 'image/png' } });
+      const blobUrl = URL.createObjectURL(blob);
+      const cutImg  = new Image();
+      cutImg.onload = () => { uploadedImage = cutImg; renderCanvas(config, nama, jabatan, canvas, placeholder, bar); };
+      cutImg.src = blobUrl;
     } catch (e) {
-      console.error('Bg removal error:', e);
-      // Fallback ke foto asli
-      renderPoster(config, nama, jabatan, canvas, placeholder, bar);
+      console.warn('Background removal skipped:', e.message);
+      renderCanvas(config, nama, jabatan, canvas, placeholder, bar);
     }
   }
 
-  function renderPoster(config, nama, jabatan, canvas, placeholder, bar) {
-    placeholder.innerHTML = `
-      <div class="spinner spinner-dark" style="margin:0 auto 12px"></div>
-      <div style="font-weight:700;color:var(--navy);font-size:13px">Langkah 2: Menyatukan Poster...</div>
-      <div style="font-size:11px;color:var(--text3);margin-top:4px">Menyusun elemen grafis...</div>
-    `;
+  // ── RENDER CANVAS (load logos dulu) ───────────────────────────
+  function renderCanvas(config, nama, jabatan, canvas, placeholder, bar) {
+    if (placeholder) {
+      placeholder.innerHTML = `
+        <div class="spinner spinner-dark" style="margin:0 auto 12px"></div>
+        <div style="font-weight:700;color:var(--navy);font-size:13px">Langkah 2: Menyusun Poster...</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:4px">Menyatukan elemen grafis...</div>
+      `;
+    }
 
     canvas.width  = CANVAS_W;
     canvas.height = CANVAS_H;
-    const ctx = canvas.getContext('2d');
-    
-    // Tunggu font load sebelum menggambar
+
     document.fonts.ready.then(() => {
-      const pbdLogo = new Image();
+      const pbdLogo  = new Image();
       const puprLogo = new Image();
       let loaded = 0;
 
-      const finishGenerate = () => {
+      const done = () => {
         loaded++;
-        if (loaded === 2) {
-          drawPoster(ctx, config, nama, jabatan, pbdLogo, puprLogo);
+        if (loaded < 2) return;
+        const ctx = canvas.getContext('2d');
+        drawPoster(ctx, config, nama, jabatan, pbdLogo, puprLogo);
 
-          placeholder.style.display = 'none';
-          canvas.style.display = 'block';
-          bar.style.display = 'flex';
-          
-          // Reset placeholder konten
-          placeholder.innerHTML = `
-            <div style="font-size:48px;margin-bottom:8px">🖼️</div>
-            <div style="font-size:12px">Poster akan muncul di sini setelah generate</div>
-          `;
-
-          isGenerating = false;
-          Utils.showToast('🎨 Poster berhasil dibuat!', 'success');
-        }
+        if (placeholder) { placeholder.style.display = 'none'; placeholder.innerHTML = `<div style="font-size:48px;margin-bottom:8px">🖼️</div><div style="font-size:12px">Poster muncul setelah generate</div>`; }
+        canvas.style.display = 'block';
+        if (bar) bar.style.display = 'flex';
+        isGenerating = false;
+        if (window.Utils) Utils.showToast('🎨 Poster berhasil dibuat!', 'success');
       };
 
-      pbdLogo.onload = finishGenerate;
-      pbdLogo.onerror = finishGenerate;
-      puprLogo.onload = finishGenerate;
-      puprLogo.onerror = finishGenerate;
-
-      // Set src untuk mulai memuat
-      pbdLogo.src = '../components/Logo_Papua_Barat_Daya.png';
+      pbdLogo.onload  = done; pbdLogo.onerror  = done;
+      puprLogo.onload = done; puprLogo.onerror = done;
+      pbdLogo.src  = '../components/Logo_Papua_Barat_Daya.png';
       puprLogo.src = '../components/Logo_PUPR.png';
     });
   }
 
-  // ── DRAW POSTER ────────────────────────────────────────────────
+  // ── DRAW POSTER (canvas API) ──────────────────────────────────
   function drawPoster(ctx, cfg, nama, jabatan, pbdLogo, puprLogo) {
     const W = CANVAS_W, H = CANVAS_H;
-    const primaryColor = cfg.bg1 || '#cc0000';
-    const darkColor = cfg.bg2 || '#7f1d1d';
+    const RED    = cfg.primary;
+    const DARK   = cfg.dark;
+    const WHITE  = '#ffffff';
+    const BLACK  = '#111111';
 
-    // 1. Background Image dari AI (Tidak Dipakai, Pakai Desain Vector)
-    ctx.fillStyle = '#f8f9fa';
+    // ── 1. BACKGROUND ─────────────────────────────────────────────
+    ctx.fillStyle = '#f0f0ee';
     ctx.fillRect(0, 0, W, H);
-    
-    // Abstract faint background gradient
-    const bgGrad = ctx.createRadialGradient(W/2, H/2, 100, W/2, H/2, W);
-    bgGrad.addColorStop(0, '#ffffff');
-    bgGrad.addColorStop(1, '#e5e7eb');
+
+    // Subtle radial glow center
+    const bgGrad = ctx.createRadialGradient(W * 0.6, H * 0.4, 0, W * 0.6, H * 0.4, W);
+    bgGrad.addColorStop(0, 'rgba(255,255,255,0.9)');
+    bgGrad.addColorStop(1, 'rgba(230,228,225,0.4)');
     ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, W, H);
 
-    // 2. Top Right Wavy Ribbon (Red & White)
+    // ── 2. TOP-RIGHT WAVY RED FLAG DECORATION ─────────────────────
+    // Merah (bawah)
+    ctx.save();
     ctx.beginPath();
-    ctx.moveTo(W * 0.4, 0);
-    ctx.bezierCurveTo(W * 0.7, 50, W * 0.8, 200, W, 250);
+    ctx.moveTo(W * 0.38, 0);
+    ctx.bezierCurveTo(W * 0.6, 0, W * 0.85, 80, W, 140);
     ctx.lineTo(W, 0);
     ctx.closePath();
-    ctx.fillStyle = primaryColor;
+    ctx.fillStyle = RED;
     ctx.fill();
-
+    // Putih (atas, lebih sempit)
     ctx.beginPath();
-    ctx.moveTo(W * 0.55, 0);
-    ctx.bezierCurveTo(W * 0.8, 30, W * 0.9, 150, W, 180);
+    ctx.moveTo(W * 0.56, 0);
+    ctx.bezierCurveTo(W * 0.75, 0, W * 0.92, 55, W, 90);
     ctx.lineTo(W, 0);
     ctx.closePath();
-    ctx.fillStyle = '#ffffff';
-    ctx.shadowColor = 'rgba(0,0,0,0.1)';
-    ctx.shadowBlur = 15;
+    ctx.fillStyle = WHITE;
     ctx.fill();
-    ctx.shadowColor = 'transparent';
+    ctx.restore();
 
-    // 3. Bottom Wavy Design
+    // ── 3. BOTTOM AREA: Smooth red wave + dark footer ──────────────
+    // Wave merah dimulai dari kiri tengah ke kanan
+    ctx.save();
+
+    // gelombang putih (separator)
     ctx.beginPath();
-    ctx.moveTo(0, H * 0.65);
-    ctx.bezierCurveTo(W * 0.3, H * 0.55, W * 0.7, H * 0.8, W, H * 0.65);
+    ctx.moveTo(0, H * 0.715);
+    ctx.bezierCurveTo(W * 0.25, H * 0.685, W * 0.6, H * 0.74, W, H * 0.70);
     ctx.lineTo(W, H);
     ctx.lineTo(0, H);
     ctx.closePath();
-    ctx.fillStyle = darkColor;
+    ctx.fillStyle = DARK;
     ctx.fill();
 
+    // gelombang merah utama
     ctx.beginPath();
-    ctx.moveTo(0, H * 0.75);
-    ctx.bezierCurveTo(W * 0.4, H * 0.65, W * 0.6, H * 0.9, W, H * 0.75);
+    ctx.moveTo(0, H * 0.69);
+    ctx.bezierCurveTo(W * 0.25, H * 0.66, W * 0.6, H * 0.72, W, H * 0.68);
+    ctx.lineTo(W, H * 0.73);
+    ctx.bezierCurveTo(W * 0.6, H * 0.77, W * 0.25, H * 0.71, 0, H * 0.74);
+    ctx.closePath();
+    ctx.fillStyle = WHITE;
+    ctx.fill();
+
+    // background merah footer
+    ctx.beginPath();
+    ctx.moveTo(0, H * 0.76);
+    ctx.bezierCurveTo(W * 0.25, H * 0.73, W * 0.65, H * 0.79, W, H * 0.745);
     ctx.lineTo(W, H);
     ctx.lineTo(0, H);
     ctx.closePath();
-    ctx.fillStyle = primaryColor;
-    ctx.shadowColor = 'rgba(0,0,0,0.2)';
-    ctx.shadowBlur = 10;
-    ctx.shadowOffsetY = -5;
+    ctx.fillStyle = RED;
     ctx.fill();
-    ctx.shadowColor = 'transparent';
 
-    // 4. Draw Logos
-    const logoY = 40;
-    let nextX = 50;
-    
-    // Draw PBD Logo
-    if (pbdLogo && pbdLogo.complete && pbdLogo.naturalHeight !== 0) {
-      const h = 75;
-      const w = pbdLogo.width * (h / pbdLogo.height);
-      ctx.drawImage(pbdLogo, nextX, logoY, w, h);
-      nextX += w + 20;
+    ctx.restore();
+
+    // ── 4. HEADER LOGOS ────────────────────────────────────────────
+    const LOGO_H   = 80;
+    const LOGO_Y   = 38;
+    let logoX = 44;
+
+    if (pbdLogo.naturalHeight) {
+      const lw = pbdLogo.naturalWidth * (LOGO_H / pbdLogo.naturalHeight);
+      ctx.drawImage(pbdLogo, logoX, LOGO_Y, lw, LOGO_H);
+      logoX += lw + 18;
+    }
+    if (puprLogo.naturalHeight) {
+      const lw = puprLogo.naturalWidth * (LOGO_H / puprLogo.naturalHeight);
+      ctx.drawImage(puprLogo, logoX, LOGO_Y, lw, LOGO_H);
+      logoX += lw + 22;
     }
 
-    // Draw PUPR Logo
-    if (puprLogo && puprLogo.complete && puprLogo.naturalHeight !== 0) {
-      const h = 75;
-      const w = puprLogo.width * (h / puprLogo.height);
-      ctx.drawImage(puprLogo, nextX, logoY, w, h);
-      nextX += w + 20;
-    }
+    // Garis vertikal pemisah
+    ctx.save();
+    ctx.strokeStyle = '#aaaaaa';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(logoX, LOGO_Y + 6); ctx.lineTo(logoX, LOGO_Y + LOGO_H - 6); ctx.stroke();
+    ctx.restore();
+    logoX += 18;
 
+    // Nama instansi
     ctx.textAlign = 'left';
-    ctx.fillStyle = '#000000';
-    ctx.font = '800 16px "Montserrat", sans-serif';
-    ctx.fillText('DINAS PEKERJAAN UMUM', nextX, logoY + 25);
-    ctx.fillText('DAN PERUMAHAN RAKYAT', nextX, logoY + 45);
-    ctx.font = '600 15px "Montserrat", sans-serif';
-    ctx.fillText('PROVINSI PAPUA BARAT DAYA', nextX, logoY + 65);
+    ctx.fillStyle = BLACK;
+    ctx.font = '800 22px "Montserrat", sans-serif';
+    ctx.fillText('DINAS PEKERJAAN UMUM', logoX, LOGO_Y + 26);
+    ctx.fillText('DAN PERUMAHAN RAKYAT', logoX, LOGO_Y + 52);
+    ctx.font = '600 19px "Montserrat", sans-serif';
+    ctx.fillStyle = '#444444';
+    ctx.fillText('PROVINSI PAPUA BARAT DAYA', logoX, LOGO_Y + 76);
 
-    // 5. Text / Typography (Right side)
-    const lines = cfg.judul.split('\n');
-    let title1 = lines[0] || 'Dirgahayu';
-    let title2 = lines[1] || 'REPUBLIK';
-    let title3 = lines[2] || 'INDONESIA';
+    // ── 5. TYPOGRAPHY (KANAN TENGAH) ───────────────────────────────
+    const TX = W - 55; // right-aligned anchor
+    let   TY = 195;
 
+    // "Dirgahayu" – script font
+    ctx.textAlign  = 'right';
+    ctx.fillStyle  = BLACK;
+    ctx.font       = 'italic 88px "Great Vibes", cursive';
+    ctx.fillText(cfg.scriptText, TX, TY);
+    TY += 10;
+
+    // Line 1 bold merah
+    ctx.font       = '900 86px "Montserrat", sans-serif';
+    ctx.fillStyle  = RED;
+    TY += 84;
+    ctx.fillText(cfg.line1, TX, TY);
+
+    // Line 2 bold merah
+    TY += 84;
+    ctx.fillText(cfg.line2, TX, TY);
+    TY += 20;
+
+    // Angka besar (outline style) + superscript
+    const numFontSize = 280;
+    ctx.font      = `900 ${numFontSize}px "Montserrat", sans-serif`;
     ctx.textAlign = 'right';
-    ctx.fillStyle = '#000000';
-    ctx.font = 'normal 90px "Great Vibes", cursive';
-    ctx.fillText(title1, W - 60, 230);
-    
-    ctx.font = '900 80px "Montserrat", sans-serif';
-    ctx.fillStyle = primaryColor;
-    ctx.fillText(title2, W - 60, 320);
-    ctx.fillText(title3, W - 60, 400);
-    
-    // Tag Number (e.g. 81 TH)
-    const numMatch = cfg.tag.match(/\d+/);
-    const tagNum = numMatch ? numMatch[0] : '81';
-    
-    ctx.font = '900 280px "Montserrat", sans-serif';
-    ctx.fillStyle = 'transparent';
-    ctx.strokeStyle = primaryColor;
-    ctx.lineWidth = 18;
-    ctx.strokeText(tagNum, W - 180, 680);
-    ctx.lineWidth = 6;
-    ctx.strokeStyle = '#ffffff';
-    ctx.strokeText(tagNum, W - 180, 680);
-    
-    ctx.font = '900 60px "Montserrat", sans-serif';
-    ctx.fillStyle = primaryColor;
-    ctx.fillText('TH', W - 60, 480);
 
-    // Tagline / Slogan
-    ctx.fillStyle = '#000000';
-    ctx.font = '800 24px "Montserrat", sans-serif';
-    
-    // Parse taglines
-    const taglines = cfg.tagline.split('\n');
-    // If it's HUT RI we override with specific slogan to match screenshot
-    if (cfg.bg1 === '#b91c1c') { // Just a heuristic
-      ctx.fillText('BERSATU BERDAULAT', W - 60, 780);
-      ctx.fillText('RAKYAT SEJAHTERA', W - 60, 815);
-      ctx.fillText('INDONESIA MAJU', W - 60, 850);
-    } else {
-      let ty = 780;
-      taglines.forEach(t => {
-        ctx.fillText(t.toUpperCase(), W - 60, ty);
-        ty += 35;
-      });
+    // Shadow/outline merah tebal
+    ctx.strokeStyle = RED;
+    ctx.lineWidth   = 22;
+    ctx.lineJoin    = 'round';
+    ctx.strokeText(cfg.numText, TX, TY + numFontSize - 40);
+
+    // Inner white stroke (membuat efek outline berlapis)
+    ctx.strokeStyle = WHITE;
+    ctx.lineWidth   = 8;
+    ctx.strokeText(cfg.numText, TX, TY + numFontSize - 40);
+
+    // Isi merah untuk angka
+    ctx.fillStyle = RED;
+    ctx.fillText(cfg.numText, TX, TY + numFontSize - 40);
+
+    // Superscript "TH"
+    if (cfg.supText) {
+      ctx.font      = '900 68px "Montserrat", sans-serif';
+      ctx.fillStyle = RED;
+      ctx.textAlign = 'right';
+      ctx.fillText(cfg.supText, TX, TY + 60);
     }
-    
-    // Date Pill
-    ctx.fillStyle = primaryColor;
-    const dateText = cfg.sub;
-    const dateW = Math.max(450, ctx.measureText(dateText).width + 60);
-    drawRoundRect(ctx, W - 60 - dateW, 880, dateW, 40, 20);
+
+    TY += numFontSize - 20;
+
+    // Slogan (3 baris, hitam, bold)
+    ctx.font      = '800 26px "Montserrat", sans-serif';
+    ctx.fillStyle = BLACK;
+    ctx.textAlign = 'right';
+    ctx.fillText(cfg.slogan1, TX, TY + 10);
+    ctx.fillText(cfg.slogan2, TX, TY + 42);
+    ctx.fillText(cfg.slogan3, TX, TY + 74);
+    TY += 74;
+
+    // Date pill
+    const pillText = cfg.dateText;
+    ctx.font = '700 20px "Montserrat", sans-serif';
+    const pillW  = ctx.measureText(pillText).width + 56;
+    const pillH  = 44;
+    const pillX  = TX - pillW;
+    const pillY  = TY + 26;
+    drawRoundRect(ctx, pillX, pillY, pillW, pillH, 22);
+    ctx.fillStyle = RED;
     ctx.fill();
-    ctx.fillStyle = '#ffffff';
-    ctx.font = '700 18px "Montserrat", sans-serif';
+    ctx.fillStyle = WHITE;
     ctx.textAlign = 'center';
-    ctx.fillText(dateText.toUpperCase(), W - 60 - dateW/2, 907);
+    ctx.fillText(pillText, pillX + pillW / 2, pillY + 29);
 
-    // 6. Draw Photo ASN (Left Side, Bottom aligned)
+    // ── 6. FOTO ASN (kiri, bottom-aligned, tanpa background) ───────
     if (uploadedImage) {
-      const photoW = W * 0.7; // Large photo
-      const ratio = photoW / uploadedImage.width;
-      const photoH = uploadedImage.height * ratio;
-      
-      const photoX = -50;
-      const photoY = H - photoH + 100; 
-      
-      ctx.drawImage(uploadedImage, photoX, photoY, photoW, photoH);
+      const photoMaxH = H * 0.72;
+      const photoMaxW = W * 0.58;
+      let   pH = photoMaxH;
+      let   pW = uploadedImage.naturalWidth * (pH / uploadedImage.naturalHeight);
+      if (pW > photoMaxW) { pW = photoMaxW; pH = uploadedImage.naturalHeight * (pW / uploadedImage.naturalWidth); }
+
+      const pX = -40;
+      const pY = H * 0.72 - pH;      // bottom aligned ke awal area merah
+
+      ctx.save();
+      ctx.drawImage(uploadedImage, pX, pY, pW, pH);
+      ctx.restore();
     }
 
-    // 7. Footer Text (Name and Title)
+    // ── 7. FOOTER: NAMA & JABATAN ──────────────────────────────────
+    const FOOT_Y = H * 0.785;
+
     ctx.textAlign = 'left';
-    ctx.fillStyle = '#ffffff';
-    ctx.font = '900 45px "Montserrat", sans-serif';
-    ctx.fillText(nama.toUpperCase(), 60, H - 150);
-    
-    ctx.font = '700 22px "Montserrat", sans-serif';
-    ctx.fillText(jabatan.toUpperCase(), 60, H - 100);
-    ctx.font = '500 18px "Montserrat", sans-serif';
-    ctx.fillText('DINAS PEKERJAAN UMUM DAN PERUMAHAN RAKYAT', 60, H - 70);
-    ctx.fillText('PROVINSI PAPUA BARAT DAYA', 60, H - 45);
+    ctx.fillStyle = WHITE;
+    ctx.font      = '900 46px "Montserrat", sans-serif';
+    wrapText(ctx, nama.toUpperCase(), 52, FOOT_Y + 50, W - 100, 52);
+
+    ctx.font      = '700 23px "Montserrat", sans-serif';
+    ctx.fillStyle = 'rgba(255,255,255,0.92)';
+    wrapText(ctx, jabatan.toUpperCase(), 52, FOOT_Y + 115, W - 100, 28);
+
+    ctx.font      = '500 19px "Montserrat", sans-serif';
+    ctx.fillStyle = 'rgba(255,255,255,0.75)';
+    ctx.fillText('DINAS PEKERJAAN UMUM DAN PERUMAHAN RAKYAT', 52, FOOT_Y + 155);
+    ctx.fillText('PROVINSI PAPUA BARAT DAYA', 52, FOOT_Y + 178);
   }
 
-  // ── HELPER: Rounded Rectangle ─────────────────────────────────
+  // ── HELPER: draw text with line wrap ──────────────────────────
+  function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+    const words = text.split(' ');
+    let   line  = '';
+    let   curY  = y;
+    for (const word of words) {
+      const test = line ? `${line} ${word}` : word;
+      if (ctx.measureText(test).width > maxWidth && line) {
+        ctx.fillText(line, x, curY);
+        line = word; curY += lineHeight;
+      } else { line = test; }
+    }
+    if (line) ctx.fillText(line, x, curY);
+  }
+
+  // ── HELPER: rounded rect path ──────────────────────────────────
   function drawRoundRect(ctx, x, y, w, h, r) {
     ctx.beginPath();
     ctx.moveTo(x + r, y);
@@ -474,61 +485,34 @@ const ASNPoster = (() => {
     ctx.closePath();
   }
 
-  // ── HELPER: Ribbon merah-putih ────────────────────────────────
-  function drawRibbon(ctx, W, H) {
-    // Pita bawah merah
-    ctx.save();
-    ctx.beginPath();
-    ctx.moveTo(0, H - 80);
-    ctx.bezierCurveTo(W * 0.15, H - 60, W * 0.3, H - 100, W * 0.5, H - 75);
-    ctx.lineTo(W * 0.5, H - 55);
-    ctx.bezierCurveTo(W * 0.3, H - 80, W * 0.15, H - 40, 0, H - 60);
-    ctx.closePath();
-    ctx.fillStyle = 'rgba(255,255,255,0.85)';
-    ctx.fill();
-    ctx.beginPath();
-    ctx.moveTo(0, H - 55);
-    ctx.bezierCurveTo(W * 0.15, H - 35, W * 0.3, H - 75, W * 0.5, H - 50);
-    ctx.lineTo(W * 0.5, H - 35);
-    ctx.bezierCurveTo(W * 0.3, H - 60, W * 0.15, H - 20, 0, H - 40);
-    ctx.closePath();
-    ctx.fillStyle = 'rgba(220,38,38,0.85)';
-    ctx.fill();
-    ctx.restore();
-  }
-
   // ── DOWNLOAD ───────────────────────────────────────────────────
   function download() {
     const canvas = document.getElementById('asn-poster-canvas');
-    const hariId = document.getElementById('asn-hari-besar').value;
-    const nama   = (document.getElementById('asn-nama').value.trim() || 'asn').replace(/\s+/g, '-');
+    const hariId = document.getElementById('asn-hari-besar')?.value || 'poster';
+    const nama   = (document.getElementById('asn-nama')?.value.trim() || 'asn').replace(/\s+/g, '-').toLowerCase();
     const link   = document.createElement('a');
     link.download = `poster-${hariId}-${nama}.png`;
-    link.href = canvas.toDataURL('image/png');
+    link.href     = canvas.toDataURL('image/png');
     link.click();
-    Utils.showToast('✅ Poster berhasil didownload!', 'success');
+    if (window.Utils) Utils.showToast('✅ Poster berhasil didownload!', 'success');
   }
 
-  // ── SHARE (Web Share API) ──────────────────────────────────────
+  // ── SHARE ─────────────────────────────────────────────────────
   async function share() {
     const canvas = document.getElementById('asn-poster-canvas');
     canvas.toBlob(async (blob) => {
       const file = new File([blob], 'poster-pupr.png', { type: 'image/png' });
       if (navigator.share && navigator.canShare({ files: [file] })) {
-        try {
-          await navigator.share({ files: [file], title: 'Poster PUPR Papua Barat Daya' });
-        } catch (e) {
-          download(); // fallback
-        }
-      } else {
-        download(); // fallback ke download
-        Utils.showToast('Poster didownload, bagikan secara manual.', '');
-      }
+        try { await navigator.share({ files: [file], title: 'Poster PUPR Papua Barat Daya' }); }
+        catch { download(); }
+      } else { download(); }
     });
   }
 
-  return { handleFileInput, handleDrop, generate, download, share, updateCustomPrompt };
+  // update prompt (compat)
+  function updateCustomPrompt() {}
 
+  return { handleFileInput, handleDrop, generate, download, share, updateCustomPrompt };
 })();
 
 window.ASNPoster = ASNPoster;
