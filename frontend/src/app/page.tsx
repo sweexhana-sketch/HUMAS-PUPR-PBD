@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Upload, Image as ImageIcon, Sparkles, Download, Loader2 } from "lucide-react";
+import { useState, useRef } from "react";
+import { Upload, Image as ImageIcon, Sparkles, Download, Loader2, X } from "lucide-react";
 import axios from "axios";
 
 const EVENTS = [
@@ -20,6 +20,13 @@ export default function Home() {
   const [theme, setTheme] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [resultImage, setResultImage] = useState<string | null>(null);
+  
+  // State untuk file upload
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+
+  const logoInputRef = useRef<HTMLInputElement>(null);
+  const photoInputRef = useRef<HTMLInputElement>(null);
 
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,7 +39,8 @@ export default function Home() {
     setResultImage(null);
 
     try {
-      // Panggil backend FastAPI
+      // Panggil backend FastAPI (sementara baru prompt teks)
+      // Di tahap selanjutnya, logo dan foto bisa dikirim via FormData untuk diproses
       const response = await axios.post("http://localhost:8000/buat-poster", {
         acara: `${event} ${year}`,
         tema: theme,
@@ -40,7 +48,7 @@ export default function Home() {
       setResultImage(response.data.hasil);
     } catch (error) {
       console.error(error);
-      alert("Gagal menghasilkan poster. Pastikan backend berjalan dan API Key valid.");
+      alert("Gagal menghasilkan poster. Pastikan backend berjalan.");
     } finally {
       setIsGenerating(false);
     }
@@ -122,14 +130,71 @@ export default function Home() {
                 <div className="pt-2">
                   <p className="block text-sm font-medium text-slate-300 mb-2">Aset Tambahan</p>
                   <div className="grid grid-cols-2 gap-4">
-                    <button type="button" className="flex flex-col items-center justify-center p-4 border border-dashed border-slate-700 rounded-xl hover:bg-slate-800/50 hover:border-blue-500/50 transition-all text-slate-400 hover:text-blue-400 group">
-                      <Upload className="w-6 h-6 mb-2 group-hover:-translate-y-1 transition-transform" />
-                      <span className="text-xs font-medium">Upload Logo</span>
-                    </button>
-                    <button type="button" className="flex flex-col items-center justify-center p-4 border border-dashed border-slate-700 rounded-xl hover:bg-slate-800/50 hover:border-blue-500/50 transition-all text-slate-400 hover:text-blue-400 group">
-                      <Upload className="w-6 h-6 mb-2 group-hover:-translate-y-1 transition-transform" />
-                      <span className="text-xs font-medium">Foto ASN (Opsional)</span>
-                    </button>
+                    {/* Upload Logo */}
+                    <div>
+                      <input 
+                        type="file" 
+                        accept="image/*"
+                        className="hidden" 
+                        ref={logoInputRef}
+                        onChange={(e) => setLogoFile(e.target.files?.[0] || null)}
+                      />
+                      {logoFile ? (
+                        <div className="relative flex flex-col items-center justify-center p-4 border border-blue-500 bg-blue-500/10 rounded-xl text-blue-400">
+                          <button 
+                            type="button" 
+                            onClick={() => setLogoFile(null)}
+                            className="absolute top-2 right-2 p-1 bg-slate-800 rounded-full hover:bg-slate-700 text-white"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                          <ImageIcon className="w-6 h-6 mb-2" />
+                          <span className="text-xs font-medium truncate w-full text-center">{logoFile.name}</span>
+                        </div>
+                      ) : (
+                        <button 
+                          type="button" 
+                          onClick={() => logoInputRef.current?.click()}
+                          className="w-full flex flex-col items-center justify-center p-4 border border-dashed border-slate-700 rounded-xl hover:bg-slate-800/50 hover:border-blue-500/50 transition-all text-slate-400 hover:text-blue-400 group"
+                        >
+                          <Upload className="w-6 h-6 mb-2 group-hover:-translate-y-1 transition-transform" />
+                          <span className="text-xs font-medium">Upload Logo</span>
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Upload Foto */}
+                    <div>
+                      <input 
+                        type="file" 
+                        accept="image/*"
+                        className="hidden" 
+                        ref={photoInputRef}
+                        onChange={(e) => setPhotoFile(e.target.files?.[0] || null)}
+                      />
+                      {photoFile ? (
+                        <div className="relative flex flex-col items-center justify-center p-4 border border-blue-500 bg-blue-500/10 rounded-xl text-blue-400">
+                          <button 
+                            type="button" 
+                            onClick={() => setPhotoFile(null)}
+                            className="absolute top-2 right-2 p-1 bg-slate-800 rounded-full hover:bg-slate-700 text-white"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                          <ImageIcon className="w-6 h-6 mb-2" />
+                          <span className="text-xs font-medium truncate w-full text-center">{photoFile.name}</span>
+                        </div>
+                      ) : (
+                        <button 
+                          type="button" 
+                          onClick={() => photoInputRef.current?.click()}
+                          className="w-full flex flex-col items-center justify-center p-4 border border-dashed border-slate-700 rounded-xl hover:bg-slate-800/50 hover:border-blue-500/50 transition-all text-slate-400 hover:text-blue-400 group"
+                        >
+                          <Upload className="w-6 h-6 mb-2 group-hover:-translate-y-1 transition-transform" />
+                          <span className="text-xs font-medium text-center">Foto ASN<br/>(Opsional)</span>
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
 
